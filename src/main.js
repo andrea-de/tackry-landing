@@ -615,9 +615,9 @@ function App() {
         </div>
         <nav class="site-nav">
           <a href="#moments">Flow</a>
-          <a href="#share">Share</a>
+          <a href="#share">Save</a>
+          <a href="#bubble">Bubble</a>
           <a href="#details">Widgets</a>
-          <a href="#download">Download</a>
         </nav>
       </header>
 
@@ -739,7 +739,7 @@ function App() {
           </div>
         </section>
 
-        <section class="bubble-section" aria-label="Tackry bubbles">
+        <section class="bubble-section" id="bubble" aria-label="Tackry bubbles">
           <div class="bubble-copy">
             <p class="eyebrow">Bubble Anything</p>
             <h2>Whatever you want within reach</h2>
