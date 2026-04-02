@@ -610,7 +610,7 @@ function App() {
 
       <header class="site-header">
         <div class="brand-mark">
-          <img src="/public/media/app-icon.png" alt="" />
+          <img src="/media/app-icon.png" alt="" />
           <span>Tackry</span>
         </div>
         <nav class="site-nav">
@@ -754,7 +754,7 @@ function App() {
               <${Preview} itemId="bubble_preview" theme=${previewTheme} compact=${true} />
             </div>
             <div class="bubble-orb">
-              <img class="bubble-orb-icon" src="/public/media/app-icon.png" alt="" />
+              <img class="bubble-orb-icon" src="/media/app-icon.png" alt="" />
             </div>
           </div>
         </section>
