@@ -900,6 +900,7 @@ function App() {
 
         <footer class="site-footer">
           <span>© 2026 Tackry. All rights reserved.</span>
+          <a href="/privacy/">Privacy</a>
         </footer>
       </main>
     </div>
