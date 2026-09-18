@@ -27,6 +27,14 @@
     <link rel="preload" href="/fonts/space-grotesk-regular.woff2" as="font" type="font/woff2" crossorigin />
 
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Stamp the saved choice before first paint; without this a saved Dark flashes the
+      // system theme for a frame while the bundle loads. Mirrors src/theme.jsx.
+      try {
+        var t = localStorage.getItem("tackry-theme");
+        if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="app"></div>

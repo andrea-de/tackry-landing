@@ -1,6 +1,7 @@
 import { render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { Mark, Plate } from "./mark.jsx";
+import { Art, ThemeToggle } from "./theme.jsx";
 import "./styles.css";
 
 const MAILTO = "mailto:contact@tackry.com?subject=Tackry";
@@ -47,6 +48,7 @@ function Header() {
               </li>
             ))}
           </ul>
+          <ThemeToggle />
           <a class="btn btn-small" href={MAILTO}>Get in touch</a>
         </nav>
       </div>
@@ -80,16 +82,14 @@ function Hero() {
             want to try a build early.
           </p>
         </div>
-        <figure class="hero-shot">
-          <img
-            src="/media/art/today_fan.webp"
-            width="1168"
-            height="1517"
-            alt="Six of Tackry's cards in two columns: a pinned tack, a saved Slack notification, a reminder due today, a list and two notes, each outlined in the colour of what it is."
-            fetchpriority="high"
-            decoding="async"
-          />
-        </figure>
+        <Art
+          className="hero-shot"
+          name="today_fan"
+          width="1170"
+          height="1521"
+          eager
+          alt="Six of Tackry's cards in two columns: a pinned tack, a saved Slack notification, a reminder due today, a list and two notes, each outlined in the colour of what it is."
+        />
       </div>
     </section>
   );
@@ -105,7 +105,7 @@ const LOOP = [
       "Give Tackry notification access and it keeps incoming notifications in a Recent shelf for as long as you choose — title, text, the app it came from, and the buttons that notification offered while it is still live.",
       "Or push things in yourself: the Android share sheet, Select text → Save to Tackry, a Quick Settings tile, a home-screen widget, a launcher shortcut.",
     ],
-    img: "/media/art/notification_card.webp",
+    art: "notification_card",
     alt: "A captured notification as Tackry keeps it: the app it came from, how long ago, its title and its text, on a card outlined in the blue that means “from a notification”.",
     w: 1012, h: 357,
   },
@@ -116,7 +116,7 @@ const LOOP = [
       "Saving turns a capture into a tack: the one object Tackry keeps. A tack can be a note, a checklist, a captured notification, a shared link with its preview, or a file.",
       "Pin the ones that matter, give them a category, search them, swipe them away. The board is one flat place, not a folder tree.",
     ],
-    img: "/media/art/plates_light.webp",
+    art: "plates",
     alt: "Three cards side by side on the board: a pinned note outlined in green, a saved notification in blue, and a reminder in warm orange.",
     w: 1551, h: 852,
   },
@@ -127,7 +127,7 @@ const LOOP = [
       "Any tack can become a reminder — a quick pick, an exact date and time, or daily, weekdays, weekly.",
       "When reminders come due they arrive together in one floating Android bubble instead of a pile of separate notifications. Mark one done, snooze it an hour, hide the lot for fifteen minutes, or open the app.",
     ],
-    img: "/media/art/bubble.webp",
+    art: "bubble",
     alt: "Tackry's grouped reminder bubble, titled “2 reminders due”, listing Morning review and Resume focus playlist, each with Done and Snooze 1h buttons, above Hide all for 15m and Open Tackry.",
     w: 1068, h: 1458,
   },
@@ -151,9 +151,7 @@ function Loop() {
                 <h3>{step.title}</h3>
                 {step.body.map((p, i) => <p key={i}>{p}</p>)}
               </div>
-              <figure class="shot art">
-                <img src={step.img} width={step.w} height={step.h} alt={step.alt} loading="lazy" decoding="async" />
-              </figure>
+              <Art name={step.art} width={step.w} height={step.h} alt={step.alt} />
             </li>
           ))}
         </ol>
@@ -176,20 +174,16 @@ function Today() {
           view you can act on, then shrinks back where it came from.
         </p>
         <div class="today-grid">
-          <figure class="shot art">
-            <img
-              src="/media/art/today_stack.webp" width="1122" height="944" loading="lazy" decoding="async"
-              alt="Today with the stack closed: three tilted plates holding a pinned tack, above counts reading 1 due now, 2 pinned, 5 new captures."
-            />
-            <figcaption>Closed: one stack, and what is waiting behind it.</figcaption>
-          </figure>
-          <figure class="shot art">
-            <img
-              src="/media/art/today_fan.webp" width="1168" height="1517" loading="lazy" decoding="async"
-              alt="The same plates after tapping the stack, fanned into a two-column grid of cards outlined in green, blue and orange."
-            />
-            <figcaption>Tapped: the same plates, fanned into a grid.</figcaption>
-          </figure>
+          <Art
+            name="today_stack" width="1122" height="944"
+            alt="Today with the stack closed: three tilted plates holding a pinned tack, above counts reading 1 due now, 2 pinned, 5 new captures."
+            caption="Closed: one stack, and what is waiting behind it."
+          />
+          <Art
+            name="today_fan" width="1170" height="1521"
+            alt="The same plates after tapping the stack, fanned into a two-column grid of cards outlined in green, blue and orange."
+            caption="Tapped: the same plates, fanned into a grid."
+          />
         </div>
       </div>
     </section>

@@ -51,8 +51,10 @@
   --wrap: 1120px;
 }
 
+/* Dark palette: the app's own Midnight theme. Declared twice on purpose — once for the
+   system setting, once for an explicit choice — so the toggle wins in both directions. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
 
     --bg: #16202a;
@@ -76,6 +78,31 @@
 
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 32px rgba(0, 0, 0, 0.35);
   }
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg: #16202a;
+    --surface: #1f2b36;
+    --surface-2: #273543;
+    --border: #2e3c48;
+    --text: #fff7ea;
+    --muted: #b3c0cb;
+    --accent: #8cc2e6;
+    --accent-ink: #0b2233;
+    --accent-soft: #22405a;
+
+    --plate-0-face: #ffffff;
+    --plate-0-edge: #e3e8ee;
+    --plate-1-face: #8cc2e6;
+    --plate-1-edge: #68a6d3;
+    --plate-2-face: #f7c23a;
+    --plate-2-edge: #efae1c;
+    --plate-outline: #46535e;
+    --plate-hole: #5b97c4;
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 32px rgba(0, 0, 0, 0.35);
 }
 
 *,
@@ -637,4 +664,40 @@ summary:focus-visible {
     column-gap: 3rem;
   }
   .colophon { grid-column: 1 / -1; }
+}
+
+/* ---------------------------------------------------------- theme toggle */
+
+.theme-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.theme-toggle button {
+  appearance: none;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+.theme-toggle button:hover { color: var(--text); }
+
+.theme-toggle button.is-on {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.theme-toggle button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
