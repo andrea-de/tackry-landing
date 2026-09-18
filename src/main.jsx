@@ -82,10 +82,10 @@ function Hero() {
         </div>
         <figure class="hero-shot">
           <img
-            src="/media/today-fanned.webp"
-            width="720"
-            height="1558"
-            alt="Tackry's Today screen in the Midnight theme: six plate-coloured cards in two columns — a white card “Post-launch follow-up”, blue cards for saved notifications and a list, and yellow cards for items with reminders due."
+            src="/media/art/today_fan.webp"
+            width="1168"
+            height="1517"
+            alt="Six of Tackry's cards in two columns: a pinned tack, a saved Slack notification, a reminder due today, a list and two notes, each outlined in the colour of what it is."
             fetchpriority="high"
             decoding="async"
           />
@@ -105,9 +105,9 @@ const LOOP = [
       "Give Tackry notification access and it keeps incoming notifications in a Recent shelf for as long as you choose — title, text, the app it came from, and the buttons that notification offered while it is still live.",
       "Or push things in yourself: the Android share sheet, Select text → Save to Tackry, a Quick Settings tile, a home-screen widget, a launcher shortcut.",
     ],
-    img: "/media/capture-notification.webp",
-    alt: "A captured Spotify notification opened in Tackry's Light theme. The card shows the app, the time, the notification text, and two live buttons, Go to Spotify and Save, above Edit, Pin, Remind, Category and Delete.",
-    w: 720, h: 1558,
+    img: "/media/art/notification_card.webp",
+    alt: "A captured notification as Tackry keeps it: the app it came from, how long ago, its title and its text, on a card outlined in the blue that means “from a notification”.",
+    w: 1012, h: 357,
   },
   {
     n: "02",
@@ -116,9 +116,9 @@ const LOOP = [
       "Saving turns a capture into a tack: the one object Tackry keeps. A tack can be a note, a checklist, a captured notification, a shared link with its preview, or a file.",
       "Pin the ones that matter, give them a category, search them, swipe them away. The board is one flat place, not a folder tree.",
     ],
-    img: "/media/board-midnight.webp",
-    alt: "Tackry's Tackboard in the Midnight theme: a search field, category chips for Launch, Flow, Home and Research, and a list of saved tacks with coloured category dots and pin markers.",
-    w: 720, h: 1558,
+    img: "/media/art/plates_light.webp",
+    alt: "Three cards side by side on the board: a pinned note outlined in green, a saved notification in blue, and a reminder in warm orange.",
+    w: 1551, h: 852,
   },
   {
     n: "03",
@@ -127,9 +127,9 @@ const LOOP = [
       "Any tack can become a reminder — a quick pick, an exact date and time, or daily, weekdays, weekly.",
       "When reminders come due they arrive together in one floating Android bubble instead of a pile of separate notifications. Mark one done, snooze it an hour, hide the lot for fifteen minutes, or open the app.",
     ],
-    img: "/media/bubble.webp",
+    img: "/media/art/bubble.webp",
     alt: "Tackry's grouped reminder bubble, titled “2 reminders due”, listing Morning review and Resume focus playlist, each with Done and Snooze 1h buttons, above Hide all for 15m and Open Tackry.",
-    w: 720, h: 1083,
+    w: 1068, h: 1458,
   },
 ];
 
@@ -151,7 +151,7 @@ function Loop() {
                 <h3>{step.title}</h3>
                 {step.body.map((p, i) => <p key={i}>{p}</p>)}
               </div>
-              <figure class="shot shot-phone">
+              <figure class="shot art">
                 <img src={step.img} width={step.w} height={step.h} alt={step.alt} loading="lazy" decoding="async" />
               </figure>
             </li>
@@ -176,26 +176,19 @@ function Today() {
           view you can act on, then shrinks back where it came from.
         </p>
         <div class="today-grid">
-          <figure class="shot shot-phone">
+          <figure class="shot art">
             <img
-              src="/media/today-stack.webp" width="720" height="1558" loading="lazy" decoding="async"
-              alt="Tackry's Today screen with the stack closed: three tilted plates in white, blue and yellow, the top one showing a pinned tack, above counts for due now, pinned and new captures."
+              src="/media/art/today_stack.webp" width="1122" height="944" loading="lazy" decoding="async"
+              alt="Today with the stack closed: three tilted plates holding a pinned tack, above counts reading 1 due now, 2 pinned, 5 new captures."
             />
-            <figcaption>Closed: one stack, a due-now row, one thing to rediscover.</figcaption>
+            <figcaption>Closed: one stack, and what is waiting behind it.</figcaption>
           </figure>
-          <figure class="shot shot-phone">
+          <figure class="shot art">
             <img
-              src="/media/today-fanned.webp" width="720" height="1558" loading="lazy" decoding="async"
-              alt="The same Today screen after tapping the stack: the plates have fanned into a two-column grid of white, blue and yellow cards."
+              src="/media/art/today_fan.webp" width="1168" height="1517" loading="lazy" decoding="async"
+              alt="The same plates after tapping the stack, fanned into a two-column grid of cards outlined in green, blue and orange."
             />
             <figcaption>Tapped: the same plates, fanned into a grid.</figcaption>
-          </figure>
-          <figure class="shot shot-phone">
-            <img
-              src="/media/hero-open.webp" width="720" height="1558" loading="lazy" decoding="async"
-              alt="A tack opened as a hero sheet over a dimmed Tackboard in the Light theme, showing its category, title and body above Edit, Unpin, Remind, Category, Copy and Delete."
-            />
-            <figcaption>Opened: the card becomes the sheet, with its actions.</figcaption>
           </figure>
         </div>
       </div>
@@ -246,20 +239,23 @@ const THEMES = [
   {
     name: "Light",
     body: "Warm paper. Green, rust and gold accents.",
-    img: "/media/theme-light.webp",
-    alt: "Tackry's Tackboard in the Light theme on a wide screen: cream cards with coloured outlines on a warm sand background.",
+    img: "/media/art/tack_card.webp",
+    alt: "A tack card in the Light theme: cream card, green outline, dark ink on warm sand.",
+    w: 1008, h: 413,
   },
   {
     name: "Dark",
     body: "The same warmth turned down, not a grey inversion.",
-    img: "/media/theme-dark.webp",
-    alt: "The same Tackboard in the Dark theme: near-black green-tinted background with cream text and muted green, orange and gold accents.",
+    img: "/media/art/tack_card_dark.webp",
+    alt: "The same card in the Dark theme: near-black green-tinted ground, cream text, muted green outline.",
+    w: 1008, h: 413,
   },
   {
     name: "Midnight",
     body: "The mark's own colours — white, blue and yellow on navy — across the whole app.",
-    img: "/media/theme-midnight.webp",
-    alt: "The same Tackboard in the Midnight theme: deep navy background, off-white text, and blue and yellow accents.",
+    img: "/media/art/tack_card_midnight.webp",
+    alt: "The same card in the Midnight theme: deep navy ground, white card, off-white text.",
+    w: 1008, h: 413,
   },
 ];
 
@@ -276,8 +272,8 @@ function Themes() {
         </p>
         <div class="theme-grid">
           {THEMES.map((t) => (
-            <figure class="shot" key={t.name}>
-              <img src={t.img} width="1200" height="750" alt={t.alt} loading="lazy" decoding="async" />
+            <figure class="shot art" key={t.name}>
+              <img src={t.img} width={t.w} height={t.h} alt={t.alt} loading="lazy" decoding="async" />
               <figcaption><strong>{t.name}</strong> {t.body}</figcaption>
             </figure>
           ))}
@@ -335,7 +331,7 @@ const REACH = [
   ["The share sheet", "Send text, links, images, files or several at once to Tackry from any app. Shared links get a title, summary and preview fetched in the background so the save itself stays instant."],
   ["Select text anywhere", "Highlight text in any app and Save to Tackry appears in the selection menu. It saves silently, without opening anything."],
   ["The bubble", "Due reminders share one floating bubble you can drag around, act on and dismiss. Quiet updates stay quiet; only your own actions expand it."],
-  ["Tablets and folds", "Wide screens get a navigation rail and a list-and-detail pane rather than a stretched phone layout."],
+  ["Tablets and folds", "Wide screens get a floating navigation rail and a centred column rather than a stretched phone layout."],
 ];
 
 function Reach() {
