@@ -728,6 +728,39 @@ summary:focus-visible {
   outline-offset: 2px;
 }
 
+/* ----------------------------------------------------------------- phones */
+
+/* The phone itself: bezel, radius and shadow drawn here rather than baked into a
+   render, so it follows the page theme and stays sharp at any size. Used by the
+   carousel, both scroll sections and the bubble animation. */
+.phone { margin: 0; max-width: 300px; }
+
+.phone-body {
+  position: relative;
+  padding: 10px;
+  border-radius: 34px;
+  background: var(--phone-shell);
+  box-shadow:
+    inset 0 0 0 1px var(--phone-edge),
+    var(--shadow);
+}
+
+/* Direct child only: the bubble animation puts its own images inside a phone, and
+   they are sized by their own rules, not stretched to the screen. */
+.phone-body > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 25px;
+}
+
+.phone figcaption {
+  margin-top: 0.85rem;
+  font-size: 0.92rem;
+  color: var(--muted);
+  text-align: center;
+}
+
 /* --------------------------------------------------------------- carousel */
 
 .carousel { padding: 0; }
