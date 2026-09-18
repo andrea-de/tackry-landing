@@ -741,7 +741,9 @@ summary:focus-visible {
     var(--shadow);
 }
 
-.phone-body img {
+/* Direct child only: the bubble animation puts its own images inside a phone, and
+   they are sized by their own rules, not stretched to the screen. */
+.phone-body > img {
   display: block;
   width: 100%;
   height: auto;
@@ -825,7 +827,7 @@ summary:focus-visible {
   will-change: opacity;
 }
 
-.zoom-phone img { display: block; width: 100%; height: auto; }
+.zoom-phone > .phone-body > img { display: block; width: 100%; height: auto; }
 
 .zoom-cards {
   position: absolute;
@@ -920,75 +922,74 @@ summary:focus-visible {
 
 .bubble-play { margin: 0; }
 
-/* A window with the app behind it, dimmed, so the bubble reads as floating over
-   whatever you were doing rather than as another picture of a sheet. */
-.bubble-stage {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
+.bubble-phone {
+  width: min(280px, 82%);
   margin-inline: auto;
-  aspect-ratio: 4 / 5;
-  border-radius: 20px;
+}
+
+/* A plain ground rather than a screenshot: the bubble floats over whatever you
+   were doing, and a busy screen behind it only competes with the thing moving. */
+.bubble-screen {
+  position: relative;
+  aspect-ratio: 1170 / 2532;
+  border-radius: 25px;
   overflow: hidden;
-  background: var(--surface-2);
+  background:
+    radial-gradient(120% 60% at 50% 0%, var(--surface) 0%, transparent 70%),
+    var(--bg);
 }
 
-.bubble-behind {
+/* A real bubble is about 52dp against a 390dp screen, so it is small — roughly a
+   seventh of the width, not a quarter. */
+.bubble-dot {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  opacity: 0.45;
-  filter: saturate(0.7);
+  width: 15%;
+  left: 50%;
+  top: 4.5%;
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  /* Above the sheet, as the platform draws it. */
+  z-index: 2;
+  opacity: 0;
+  /* Resting place is the top centre, where an open bubble sits; the keyframes
+     carry it out to the edge it arrives at. */
+  transform: translate(-50%, 0);
 }
 
-.bubble-dot,
 .bubble-sheet {
   position: absolute;
+  left: 4%;
+  width: 92%;
+  top: 14%;
+  height: auto;
+  border-radius: 14px;
+  transform-origin: 50% 0;
   opacity: 0;
 }
 
-.bubble-dot {
-  width: 22%;
-  right: 6%;
-  top: 22%;
-  border-radius: 50%;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
-}
-
-.bubble-sheet {
-  left: 6%;
-  right: 6%;
-  bottom: 6%;
-  width: 88%;
-  height: auto;
-  transform-origin: 82% 12%;
-}
-
-/* One loop: the bubble drops in from the edge, sits, opens into the sheet, the
-   sheet holds long enough to read, then everything closes back to the bubble. */
 .is-playing .bubble-dot { animation: bubble-dot 9s ease-in-out infinite; }
 .is-playing .bubble-sheet { animation: bubble-sheet 9s ease-in-out infinite; }
 
+/* In: pops against the right edge a third of the way down, overshooting slightly
+   the way the platform's spring does. Out: slides up to the top centre, and the
+   sheet opens under it. */
 @keyframes bubble-dot {
-  0% { opacity: 0; transform: translateX(46px) scale(0.6); }
-  7% { opacity: 1; transform: translateX(-6px) scale(1.06); }
-  11% { transform: translateX(0) scale(1); }
-  26% { opacity: 1; transform: translateX(0) scale(1); }
-  32% { opacity: 0; transform: translateX(0) scale(0.7); }
-  88% { opacity: 0; transform: translateX(0) scale(0.7); }
-  94% { opacity: 1; transform: translateX(0) scale(1); }
-  100% { opacity: 1; transform: translateX(0) scale(1); }
+  0% { opacity: 0; transform: translate(calc(-50% + 300%), 430%) scale(0.5); }
+  6% { opacity: 1; transform: translate(calc(-50% + 240%), 430%) scale(1.12); }
+  10% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
+  22% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
+  31% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  86% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  94% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
+  100% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
 }
 
 @keyframes bubble-sheet {
-  0%, 26% { opacity: 0; transform: scale(0.2) translateY(12%); }
-  36% { opacity: 1; transform: scale(1) translateY(0); }
+  0%, 29% { opacity: 0; transform: scale(0.35) translateY(-14%); }
+  38% { opacity: 1; transform: scale(1) translateY(0); }
   86% { opacity: 1; transform: scale(1) translateY(0); }
-  93% { opacity: 0; transform: scale(0.2) translateY(12%); }
-  100% { opacity: 0; transform: scale(0.2) translateY(12%); }
+  92% { opacity: 0; transform: scale(0.35) translateY(-14%); }
+  100% { opacity: 0; transform: scale(0.35) translateY(-14%); }
 }
 
 .bubble-play figcaption {
@@ -998,10 +999,10 @@ summary:focus-visible {
   text-align: center;
 }
 
-/* No motion: the sheet, open, which is the state the copy is about. */
+/* No motion: the bubble open, which is the state the copy is about. */
 @media (prefers-reduced-motion: reduce) {
   .is-playing .bubble-dot,
   .is-playing .bubble-sheet { animation: none; }
-  .bubble-sheet { opacity: 1; transform: none; }
   .bubble-dot { opacity: 1; }
+  .bubble-sheet { opacity: 1; transform: none; }
 }

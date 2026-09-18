@@ -167,14 +167,14 @@ function Loop() {
 /* ----------------------------------------------------------- bubble play -- */
 
 /**
- * The bubble, doing what a bubble does. This is not a screen recording: the bubble is an Android
- * surface, so it is put back together here out of the app's own pieces — the real adaptive icon
- * the bubble wears, and the rendered sheet it opens into — moving the way the platform moves it.
- * A recording of a real one would be better, and can replace this without the page changing
- * shape; this at least shows the behaviour rather than a still of the end of it.
+ * The bubble, doing what a bubble does, inside a phone: it pops in small against the edge, and
+ * when it opens it takes its place at the top of the screen with the sheet directly under it —
+ * which is where Android puts an expanded bubble.
  *
- * It runs only while it is on screen, and holds a single still frame for anyone who has asked
- * for less motion.
+ * Not a screen recording. The bubble is an Android surface, so nothing outside Android draws
+ * one; this is the app's own pieces — the real adaptive icon the bubble wears and the rendered
+ * sheet it opens into — moved the way the platform moves them. A recording can replace it later
+ * without the page changing shape.
  */
 function BubblePlay({ alt }) {
   const stage = useRef(null);
@@ -187,7 +187,7 @@ function BubblePlay({ alt }) {
     if (!node || typeof IntersectionObserver !== "function") return undefined;
     const observer = new IntersectionObserver(
       ([entry]) => setPlaying(entry.isIntersecting),
-      { threshold: 0.35 },
+      { threshold: 0.3 },
     );
     observer.observe(node);
     return () => observer.disconnect();
@@ -195,30 +195,24 @@ function BubblePlay({ alt }) {
 
   return (
     <figure class={playing ? "bubble-play is-playing" : "bubble-play"} ref={stage}>
-      <div class="bubble-stage">
-        <img
-          class="bubble-behind"
-          src={`/media/art/screen_board_empty${suffix}.webp`}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-        />
-        <img
-          class="bubble-dot"
-          src={`/media/art/bubble_icon${suffix}.webp`}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-        />
-        <img
-          class="bubble-sheet"
-          src={`/media/art/bubble${suffix}.webp`}
-          alt={alt}
-          loading="lazy"
-          decoding="async"
-        />
+      <div class="phone-body bubble-phone">
+        <div class="bubble-screen">
+          <img
+            class="bubble-dot"
+            src={`/media/art/bubble_icon${suffix}.webp`}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+          />
+          <img
+            class="bubble-sheet"
+            src={`/media/art/bubble${suffix}.webp`}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
       </div>
       <figcaption>The bubble arriving, and opening. Recreated from the app's own pieces.</figcaption>
     </figure>
