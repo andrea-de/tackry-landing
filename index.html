@@ -2,26 +2,33 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tackry</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tackry — catch it now, deal with it later</title>
     <meta
       name="description"
-      content="Capture small pieces of information, pin what matters, and turn tacks into reminders that resurface at the right time."
+      content="Tackry is a local-first Android app for catching notifications, links and scraps of text, pinning them to a board, and turning them into reminders that come back in one grouped bubble. No account, no server."
     />
-    <link rel="icon" href="/media/app-icon.png" type="image/png" />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <script type="importmap">
-      {
-        "imports": {
-          "preact": "https://esm.sh/preact@10.26.4",
-          "preact/hooks": "https://esm.sh/preact@10.26.4/hooks",
-          "htm": "https://esm.sh/htm@3.1.1"
-        }
-      }
-    </script>
-    <script type="module" src="/src/main.js"></script>
+    <link rel="canonical" href="https://tackry.com/" />
+    <meta name="theme-color" content="#f4ebdd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16202a" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Tackry — catch it now, deal with it later" />
+    <meta
+      property="og:description"
+      content="A local-first Android app for catching notifications, links and scraps of text, and turning them into reminders. No account, no server."
+    />
+    <meta property="og:url" content="https://tackry.com/" />
+    <meta property="og:image" content="https://tackry.com/media/theme-midnight.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preload" href="/fonts/space-grotesk-bold.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/space-grotesk-regular.woff2" as="font" type="font/woff2" crossorigin />
+
+    <script type="module" src="/src/main.jsx"></script>
   </head>
   <body>
     <div id="app"></div>
   </body>
-  </html>
+</html>
