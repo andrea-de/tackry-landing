@@ -2,6 +2,7 @@ import { render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { Mark, Plate } from "./mark.jsx";
 import { Art, Phone, PhoneShell, ThemeToggle, useTheme } from "./theme.jsx";
+import BOARD_CARDS from "../public/media/art/board_cards.json";
 import "./styles.css";
 
 const MAILTO = "mailto:contact@tackry.com?subject=Tackry";
@@ -227,13 +228,18 @@ function Screens() {
 /* ------------------------------------------------------------ board zoom -- */
 
 /**
- * The Board, and then the Board's cards. Scrolling through this section drives one number,
- * --p, from 0 to 1: the phone shrinks and fades out of it while the cards it was holding scale
- * up and spread across the page. The whole effect is one CSS variable, so it costs one rAF
- * frame to drive and degrades to the end state when it cannot run.
+ * The Board, and then the Board's own cards. Scrolling drives one number, --p, from 0 to 1: the
+ * phone shrinks and fades while the cards lift off it and spread across the page.
+ *
+ * The cards are not stand-ins. They are sliced out of the very screenshot behind them by
+ * scripts/export_landing_art.py, which also records where each one sat as a fraction of the
+ * screen, so at rest each sits exactly over itself and the lift-off has nothing to line up.
  */
 function BoardZoom() {
   const track = useRef(null);
+  const [, effective] = useTheme();
+  const suffix = effective === "dark" ? "_midnight" : "";
+
   useEffect(() => {
     const node = track.current;
     if (!node) return undefined;
@@ -263,13 +269,9 @@ function BoardZoom() {
     };
   }, []);
 
-  // Offsets are viewport units, so the three land in the same triangle at any width, and each
-  // starts a little after the one before it.
-  const cards = [
-    { name: "tack_card", x: "-25vw", y: "-21vh", delay: 0, alt: "A saved note as a tack, outlined in green." },
-    { name: "notification_card", x: "25vw", y: "-19vh", delay: 0.08, alt: "A captured notification, outlined in blue." },
-    { name: "reminder_card", x: "-2vw", y: "22vh", delay: 0.16, alt: "A tack with a reminder on it, outlined in orange." },
-  ];
+  // The bottom cards are cut off by the screen edge or sit under the add button, so the four
+  // whole ones travel.
+  const cards = BOARD_CARDS.slice(0, 4);
 
   return (
     <section class="section section-alt zoom" id="board">
@@ -283,33 +285,43 @@ function BoardZoom() {
               what matters — and read what a thing is from its colour before you read a word.
             </p>
           </div>
-          <div class="zoom-phone">
-            <PhoneShell name="screen_board" alt="Tackry's Tackboard in card view: saved tacks as plate-coloured cards, with search and category chips above and the tab bar below." />
+          <div class="zoom-scene">
+            <div class="phone-body zoom-phone">
+              <img
+                src={`/media/art/screen_board${suffix}.webp`}
+                width="1170"
+                height="2532"
+                alt="Tackry's Tackboard in card view: saved tacks as a two-column grid of cards, each outlined in the colour of what it is."
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="zoom-cards" aria-hidden="true">
+              {cards.map((card, index) => (
+                <img
+                  key={index}
+                  class="zoom-card"
+                  src={`/media/art/board_card_${index + 1}${suffix}.webp`}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  style={{
+                    left: `${card.left * 100}%`,
+                    top: `${card.top * 100}%`,
+                    width: `${card.width * 100}%`,
+                    // Each card leaves along the line from the middle of the screen through
+                    // itself, so nothing crosses anything else on the way out.
+                    "--ex": `${((card.left + card.width / 2 - 0.5) * 150).toFixed(2)}vw`,
+                    "--ey": `${((card.top + card.height / 2 - 0.5) * 120).toFixed(2)}vh`,
+                  }}
+                />
+              ))}
+            </div>
           </div>
-          {cards.map((card) => (
-            <ZoomCard key={card.name} {...card} />
-          ))}
           <p class="zoom-payoff">A card's colour says what it is: kept, captured, or coming back.</p>
         </div>
       </div>
     </section>
-  );
-}
-
-function ZoomCard({ name, x, y, delay, alt }) {
-  const [, effective] = useTheme();
-  const file = effective === "dark" ? `${name}_midnight` : name;
-  return (
-    <img
-      class="zoom-card"
-      style={{ "--dx": x, "--dy": y, "--delay": delay }}
-      src={`/media/art/${file}.webp`}
-      width="1008"
-      height="413"
-      alt={alt}
-      loading="lazy"
-      decoding="async"
-    />
   );
 }
 
