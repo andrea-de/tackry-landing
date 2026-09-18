@@ -856,25 +856,26 @@ summary:focus-visible {
 /* ------------------------------------------------------------- today pull */
 
 /* Today runs the Board's effect backwards, so it mirrors its layout: the phone on
-   the left, the copy and the cards that gather into it on the right. */
-.pull-stage { direction: ltr; }
-
+   the left, and on the right the copy with the stack that drops into it. */
 @media (min-width: 900px) {
   .pull-stage .zoom-right { order: -1; }
 }
 
 .pull-field {
   position: relative;
-  margin-top: 1.4rem;
-  min-height: clamp(220px, 34vh, 340px);
+  margin-top: 1.6rem;
+  min-height: clamp(180px, 26vh, 280px);
 }
 
-.pull-card {
+.pull-deck {
   position: absolute;
+  left: 0;
+  top: 0;
+  width: min(300px, 70%);
   height: auto;
   transform-origin: 0 0;
-  /* The travel finishes at --p 0.8 and the fade runs after it, so a card is on the
-     stack before it disappears into it rather than vanishing in mid-air. */
+  /* The drop finishes at --p 0.8 and the fade runs after it, so the stack is in
+     place on the screen before it hands over to the one the app draws there. */
   --q: clamp(0, calc(var(--p) * 1.25), 1);
   transform:
     translate(calc(var(--ex, 0px) * var(--q)), calc(var(--ey, 0px) * var(--q)))
@@ -884,5 +885,5 @@ summary:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pull-field { display: none; }
+  .pull-deck { display: none; }
 }

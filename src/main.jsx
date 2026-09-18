@@ -378,82 +378,57 @@ function rowHeight(cards, columns, row, sceneBox, scale) {
 /* ----------------------------------------------------------- today pull -- */
 
 /**
- * Today, run the other way: the cards start spread across the page and gather into the stack on
- * the screen as you scroll. Same machinery as the Board — one --p, targets measured against the
- * live boxes — with start and end swapped, and the cards fading as they land so what is left is
- * the stack the app actually draws.
+ * Today, the Board's effect run backwards. The Board lets four cards out of the phone; this one
+ * takes a single thing in — the stack itself, the app's own mark holding your pinned tacks —
+ * and drops it into its place on Today's screen as you scroll.
+ *
+ * Same machinery: one --p, and a target measured against the live boxes rather than guessed, so
+ * the stack lands in the rect the export found for it at any width.
  */
 function TodayPull() {
   const track = useRef(null);
   const scene = useRef(null);
-  const field = useRef(null);
+  const deck = useRef(null);
   const [, effective] = useTheme();
   const suffix = effective === "dark" ? "_midnight" : "";
-  const count = Math.min(TODAY_TARGET.cards, 6);
 
   useScrollProgress(track);
 
   useEffect(() => {
     const sceneNode = scene.current;
-    const fieldNode = field.current;
-    if (!sceneNode || !fieldNode) return undefined;
+    const deckNode = deck.current;
+    if (!sceneNode || !deckNode) return undefined;
 
     const layout = () => {
       const sceneBox = sceneNode.getBoundingClientRect();
-      const fieldBox = fieldNode.getBoundingClientRect();
-      if (!sceneBox.width || !fieldBox.width) return;
+      const deckBox = deckNode.getBoundingClientRect();
+      if (!sceneBox.width || !deckBox.width) return;
 
-      const nodes = [...fieldNode.querySelectorAll(".pull-card")];
-      const columns = fieldBox.width < 420 ? 2 : 2;
-      const gap = Math.min(16, fieldBox.width * 0.03);
-      const columnWidth = (fieldBox.width - gap * (columns - 1)) / columns;
+      // The screen is the scene inset by the bezel, and the target is a fraction of it.
+      const screenLeft = sceneBox.left + 10;
+      const screenTop = sceneBox.top + 10;
+      const screenWidth = sceneBox.width - 20;
+      const screenHeight = sceneBox.height - 20;
+      const target = TODAY_TARGET.deck;
 
-      const deck = TODAY_TARGET.deck;
-      const deckLeft = sceneBox.left + 10 + deck.left * (sceneBox.width - 20);
-      const deckTop = sceneBox.top + 10 + deck.top * (sceneBox.height - 20);
-      const deckWidth = deck.width * (sceneBox.width - 20);
-
-      let rowTop = 0;
-      let rowTallest = 0;
-      nodes.forEach((node, index) => {
-        const column = index % columns;
-        const ratio = (node.naturalHeight || 1) / (node.naturalWidth || 1);
-        const cardHeight = columnWidth * ratio;
-        if (column === 0 && index > 0) {
-          rowTop += rowTallest + gap;
-          rowTallest = 0;
-        }
-        rowTallest = Math.max(rowTallest, cardHeight);
-
-        const left = column * (columnWidth + gap);
-        node.style.left = `${left}px`;
-        node.style.top = `${rowTop}px`;
-        node.style.width = `${columnWidth}px`;
-
-        // Every card lands on the deck, shrunk to its width and nudged so the pile reads as a
-        // stack rather than one card.
-        const nudge = (index - (nodes.length - 1) / 2) * 3;
-        node.style.setProperty("--ex", `${(deckLeft - fieldBox.left - left + nudge).toFixed(1)}px`);
-        node.style.setProperty("--ey", `${(deckTop - fieldBox.top - rowTop + nudge * 0.6).toFixed(1)}px`);
-        node.style.setProperty("--s", (deckWidth / columnWidth).toFixed(4));
-      });
+      const scale = (target.width * screenWidth) / deckBox.width;
+      deckNode.style.setProperty("--ex", `${(screenLeft + target.left * screenWidth - deckBox.left).toFixed(1)}px`);
+      deckNode.style.setProperty("--ey", `${(screenTop + target.top * screenHeight - deckBox.top).toFixed(1)}px`);
+      deckNode.style.setProperty("--s", scale.toFixed(4));
     };
 
     layout();
-    // The rows are laid out from each card's own aspect ratio, which is not known until the
-    // image has loaded — and these are lazy, so that is after the first pass.
-    const nodes = [...fieldNode.querySelectorAll(".pull-card")];
-    nodes.forEach((node) => node.addEventListener("load", layout));
+    deckNode.addEventListener("load", layout);
     const observer = new ResizeObserver(layout);
     observer.observe(sceneNode);
-    observer.observe(fieldNode);
+    observer.observe(deckNode.parentElement);
     window.addEventListener("resize", layout);
     return () => {
-      nodes.forEach((node) => node.removeEventListener("load", layout));
+      deckNode.removeEventListener("load", layout);
       observer.disconnect();
       window.removeEventListener("resize", layout);
     };
-  }, [count]);
+  }, []);
 
   return (
     <section class="section zoom pull" id="today">
@@ -480,17 +455,15 @@ function TodayPull() {
               Everything you pinned collects into one stack on Today — the app's own mark, holding
               your things. Tap it and the stack fans back out into a grid.
             </p>
-            <div class="pull-field" ref={field} aria-hidden="true">
-              {Array.from({ length: count }, (_, index) => (
-                <img
-                  key={index}
-                  class="pull-card"
-                  src={`/media/art/today_card_${index + 1}${suffix}.webp`}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
-              ))}
+            <div class="pull-field">
+              <img
+                class="pull-deck"
+                ref={deck}
+                src={`/media/art/today_deck${suffix}.webp`}
+                alt="Three tilted plates stacked into Tackry's mark, the top one a pinned tack."
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           </div>
         </div>
