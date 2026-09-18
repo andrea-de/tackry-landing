@@ -227,20 +227,28 @@ function Screens() {
 
 /* ------------------------------------------------------------ board zoom -- */
 
+const BOARD_TRAVELLERS = 4;
+
 /**
  * The Board, and then the Board's own cards. Scrolling drives one number, --p, from 0 to 1: the
- * phone shrinks and fades while the cards lift off it and spread across the page.
+ * phone fades and the cards slide off it into a grid beside the copy.
  *
  * The cards are not stand-ins. They are sliced out of that very screenshot by
  * scripts/export_landing_art.py, which also records where each one sat as a fraction of the
  * screen — and writes the board back out with those cards erased. The phone shows the emptied
  * board, so each card exists exactly once: at rest it sits in its own hole and the screen looks
- * whole, and when it lifts off it leaves the gap behind rather than a copy of itself.
+ * whole, and when it leaves it takes the gap with it.
+ *
+ * Where they land is measured, not guessed: the target grid is laid out against the live box, so
+ * the travel is exact at any width and the cards barely have to scale, which keeps them sharp.
  */
 function BoardZoom() {
   const track = useRef(null);
+  const scene = useRef(null);
+  const stage = useRef(null);
   const [, effective] = useTheme();
   const suffix = effective === "dark" ? "_midnight" : "";
+  const cards = BOARD_CARDS.slice(0, BOARD_TRAVELLERS);
 
   useEffect(() => {
     const node = track.current;
@@ -271,60 +279,124 @@ function BoardZoom() {
     };
   }, []);
 
-  // The bottom cards are cut off by the screen edge or sit under the add button, so the four
-  // whole ones travel.
-  const cards = BOARD_CARDS.slice(0, 4);
+  // Lay the landing grid out against the real boxes and hand each card its own delta. Done on
+  // every resize because both the screen box and the space to land in are fluid.
+  useEffect(() => {
+    const sceneNode = scene.current;
+    const stageNode = stage.current;
+    if (!sceneNode || !stageNode) return undefined;
+
+    const layout = () => {
+      const sceneBox = sceneNode.getBoundingClientRect();
+      const stageBox = stageNode.getBoundingClientRect();
+      if (!sceneBox.width || !stageBox.width) return;
+
+      const gap = Math.min(18, stageBox.width * 0.03);
+      const columns = stageBox.width < 520 ? 2 : 2;
+      const columnWidth = (stageBox.width - gap * (columns - 1)) / columns;
+      const nodes = [...sceneNode.querySelectorAll(".zoom-card")];
+
+      // Uniform scale, capped against the crop's own pixels rather than a taste number: a card
+      // rendered past its native width goes soft, and these are meant to read as the same
+      // cards, not bigger ones.
+      const widest = Math.max(...cards.map((card) => card.width * sceneBox.width));
+      const nativeWidth = Math.max(...nodes.map((node) => node.naturalWidth || Infinity));
+      const sharpest = nativeWidth / widest;
+      const scale = Math.min(columnWidth / widest, sharpest, 2);
+
+      // Row offsets first, so the finished grid can be centred in the space rather than
+      // pinned to the top of it.
+      const rows = Math.ceil(nodes.length / columns);
+      const rowTops = [];
+      let stacked = 0;
+      for (let row = 0; row < rows; row += 1) {
+        rowTops[row] = stacked;
+        stacked += rowHeight(cards, columns, row, sceneBox, scale) + (row === rows - 1 ? 0 : gap);
+      }
+      const offsetY = Math.max(0, (stageBox.height - stacked) / 2);
+
+      nodes.forEach((node, index) => {
+        const card = cards[index];
+        const column = index % columns;
+        const row = Math.floor(index / columns);
+        const startLeft = sceneBox.left + card.left * sceneBox.width;
+        const startTop = sceneBox.top + card.top * sceneBox.height;
+        const targetLeft = stageBox.left + column * (columnWidth + gap);
+        const targetTop = stageBox.top + offsetY + rowTops[row];
+        node.style.setProperty("--ex", `${(targetLeft - startLeft).toFixed(1)}px`);
+        node.style.setProperty("--ey", `${(targetTop - startTop).toFixed(1)}px`);
+        node.style.setProperty("--s", scale.toFixed(4));
+      });
+    };
+
+    layout();
+    const observer = new ResizeObserver(layout);
+    observer.observe(sceneNode);
+    observer.observe(stageNode);
+    window.addEventListener("resize", layout);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", layout);
+    };
+  }, [cards]);
 
   return (
     <section class="section section-alt zoom" id="board">
       <div class="zoom-track" ref={track}>
         <div class="zoom-stage">
-          <div class="wrap zoom-copy">
+          <div class="zoom-copy">
             <p class="eyebrow">The board</p>
             <h2>Everything you kept, in one flat place</h2>
             <p class="section-lede">
               No folders, no inbox to declare bankruptcy on. Search it, filter it by category, pin
-              what matters — and read what a thing is from its colour before you read a word.
+              what matters.
+            </p>
+            <p class="zoom-payoff">
+              And a card's colour says what it is before you read a word: a note you kept, something
+              an app told you, or a thing with a time on it.
             </p>
           </div>
-          <div class="zoom-scene">
-            <div class="phone-body zoom-phone">
-              <img
-                src={`/media/art/screen_board_empty${suffix}.webp`}
-                width="1170"
-                height="2532"
-                alt="Tackry's Tackboard in card view: saved tacks as a two-column grid of cards, each outlined in the colour of what it is."
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div class="zoom-cards" aria-hidden="true">
-              {cards.map((card, index) => (
+          <div class="zoom-right" ref={stage}>
+            <div class="zoom-scene" ref={scene}>
+              <div class="phone-body zoom-phone">
                 <img
-                  key={index}
-                  class="zoom-card"
-                  src={`/media/art/board_card_${index + 1}${suffix}.webp`}
-                  alt=""
+                  src={`/media/art/screen_board_empty${suffix}.webp`}
+                  width="1440"
+                  height="3120"
+                  alt="Tackry's Tackboard: saved tacks as a two-column grid of plate-coloured cards, with search and category chips above."
                   loading="lazy"
                   decoding="async"
-                  style={{
-                    left: `${card.left * 100}%`,
-                    top: `${card.top * 100}%`,
-                    width: `${card.width * 100}%`,
-                    // Each card leaves along the line from the middle of the screen through
-                    // itself, so nothing crosses anything else on the way out.
-                    "--ex": `${((card.left + card.width / 2 - 0.5) * 150).toFixed(2)}vw`,
-                    "--ey": `${((card.top + card.height / 2 - 0.5) * 120).toFixed(2)}vh`,
-                  }}
                 />
-              ))}
+              </div>
+              <div class="zoom-cards" aria-hidden="true">
+                {cards.map((card, index) => (
+                  <img
+                    key={index}
+                    class="zoom-card"
+                    src={`/media/art/board_card_${index + 1}${suffix}.webp`}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    style={{
+                      left: `${card.left * 100}%`,
+                      top: `${card.top * 100}%`,
+                      width: `${card.width * 100}%`,
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-          <p class="zoom-payoff">A card's colour says what it is: kept, captured, or coming back.</p>
         </div>
       </div>
     </section>
   );
+}
+
+/** The tallest card in a row, scaled — the next row starts below it. */
+function rowHeight(cards, columns, row, sceneBox, scale) {
+  const inRow = cards.slice(row * columns, row * columns + columns);
+  return Math.max(...inRow.map((card) => card.height * sceneBox.height * scale));
 }
 
 /* --------------------------------------------------------------- meaning -- */
