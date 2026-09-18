@@ -521,13 +521,27 @@ summary:focus-visible {
 /* ----------------------------------------------------------------- themes */
 
 .theme-grid {
-  margin-top: 2.5rem;
+  margin-top: 1.8rem;
   display: grid;
-  gap: 2.4rem;
-  max-width: 920px;
+  gap: 1.4rem;
+  max-width: 1000px;
 }
 
-.theme-grid figcaption { text-align: left; max-width: 62ch; }
+/* Three across rather than three stacked: the point is the comparison, and a
+   column of full-width cards made a short section into a long one. */
+@media (min-width: 720px) {
+  .theme-grid { grid-template-columns: repeat(3, 1fr); align-items: start; }
+}
+
+.theme-grid .art img { max-width: 320px; }
+
+.theme-grid figcaption {
+  text-align: left;
+  max-width: 34ch;
+  margin-top: 0.6rem;
+  font-size: 0.92rem;
+}
+
 .theme-grid figcaption strong { color: var(--text); }
 
 /* ---------------------------------------------------------------- privacy */
@@ -714,48 +728,85 @@ summary:focus-visible {
   outline-offset: 2px;
 }
 
-/* ----------------------------------------------------------------- phones */
+/* --------------------------------------------------------------- carousel */
 
-.phone-row {
+.carousel { padding: 0; }
+
+/* Deliberately not sharing .zoom-stage: that one is a two-column layout on wide
+   screens, and this is a single stage with the phones centred in it. */
+.carousel-track {
+  --p: 0;
+  height: 300vh;
+}
+
+.carousel-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
   display: grid;
-  gap: clamp(1.6rem, 4vw, 2.4rem);
-  justify-items: center;
-  margin-top: clamp(1.6rem, 4vw, 2.6rem);
-}
-
-@media (min-width: 760px) {
-  .phone-row { grid-template-columns: repeat(3, 1fr); align-items: start; }
-}
-
-.phone { margin: 0; max-width: 300px; }
-
-/* The bezel is drawn here rather than baked into the render: it follows the page
-   theme, stays sharp at any size, and the screen inside stays a plain image. */
-.phone-body {
-  position: relative;
-  padding: 10px;
-  border-radius: 34px;
-  background: var(--phone-shell);
-  box-shadow:
-    inset 0 0 0 1px var(--phone-edge),
-    var(--shadow);
-}
-
-/* Direct child only: the bubble animation puts its own images inside a phone, and
-   they are sized by their own rules, not stretched to the screen. */
-.phone-body > img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 25px;
-}
-
-
-.phone figcaption {
-  margin-top: 0.85rem;
-  font-size: 0.92rem;
-  color: var(--muted);
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+  gap: clamp(0.8rem, 2.5vh, 1.8rem);
+  padding: clamp(1.4rem, 5vh, 3rem) 0;
+  overflow: hidden;
   text-align: center;
+}
+
+.carousel-copy { align-self: end; }
+.carousel-copy h2 { margin-bottom: 0; }
+
+/* Really in 3D: the browser then paints the nearest phone in front without a
+   z-index, which a fractional custom property could not have given it anyway. */
+.carousel-deck {
+  position: relative;
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  height: 100%;
+}
+
+.carousel-slot {
+  position: absolute;
+  width: min(300px, 62vw, 31vh);
+  /* How far this phone is from the front, and the same without its sign. */
+  --d: calc(var(--p) * var(--n) - var(--i));
+  --ad: max(var(--d), calc(-1 * var(--d)));
+  transform:
+    translateX(calc(var(--d) * -78%))
+    translateZ(calc(var(--ad) * -170px))
+    rotateY(calc(var(--d) * 24deg))
+    scale(calc(1 - var(--ad) * 0.06));
+  opacity: clamp(0, calc(1.35 - var(--ad) * 0.75), 1);
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+
+.carousel-labels {
+  position: relative;
+  margin: 0;
+  min-height: 1.6em;
+  color: var(--muted);
+}
+
+.carousel-label {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  --d: calc(var(--p) * var(--n) - var(--i));
+  --ad: max(var(--d), calc(-1 * var(--d)));
+  /* Only the one at the front reads. */
+  opacity: clamp(0, calc(1.15 - var(--ad) * 2.4), 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carousel-track { height: auto; }
+  .carousel-stage { position: static; height: auto; }
+  .carousel-deck { height: auto; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; perspective: none; }
+  .carousel-slot { position: static; transform: none; opacity: 1; width: min(200px, 40vw); }
+  .carousel-labels { display: none; }
 }
 
 /* ------------------------------------------------------------- board zoom */

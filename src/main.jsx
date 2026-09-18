@@ -221,38 +221,6 @@ function BubblePlay({ alt }) {
 
 /* --------------------------------------------------------------- screens -- */
 
-function Screens() {
-  return (
-    <section class="section" id="screens">
-      <div class="wrap">
-        <p class="eyebrow">The app</p>
-        <h2>Today, in, and due</h2>
-        <p class="section-lede">
-          Today is what needs you now. Notifications is what came in and has not been dealt with.
-          Reminders is what is coming back, and when.
-        </p>
-        <div class="phone-row">
-          <Phone
-            name="screen_today"
-            alt="Tackry's Today screen: a stack of three tilted plates holding a pinned tack, counts for due now, pinned and new, and the reminders due next."
-            caption="Today — what needs you now."
-          />
-          <Phone
-            name="screen_notifications"
-            alt="Tackry's Notifications tab: recent captures from Slack and Gmail as cards, with filter chips and the five-tab bar at the bottom."
-            caption="Notifications — what came in."
-          />
-          <Phone
-            name="screen_reminders"
-            alt="Tackry's Reminders tab on the Now bucket: one reminder due, with an empty state below reading That's everything due."
-            caption="Reminders — what is coming back."
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /** Drives --p on `node` from 0 to 1 across the section's scroll, one rAF at a time. */
 function useScrollProgress(ref) {
   useEffect(() => {
@@ -283,6 +251,81 @@ function useScrollProgress(ref) {
       window.removeEventListener("resize", onScroll);
     };
   }, [ref]);
+}
+
+const SCREENS = [
+  {
+    name: "screen_today",
+    label: "Today — what needs you now",
+    alt: "Tackry's Today screen: a stack of three tilted plates holding a pinned tack, counts for due now, pinned and new, and the reminders due next.",
+  },
+  {
+    name: "screen_notifications",
+    label: "Notifications — what came in",
+    alt: "Tackry's Notifications tab: recent captures from Slack and Gmail as cards, with filter chips and the five-tab bar at the bottom.",
+  },
+  {
+    name: "screen_board",
+    label: "Board — everything you kept",
+    alt: "Tackry's Tackboard: saved tacks as a two-column grid of plate-coloured cards, with search and category chips above.",
+  },
+  {
+    name: "screen_reminders",
+    label: "Reminders — what is coming back",
+    alt: "Tackry's Reminders tab on the Now bucket: one reminder due, with an empty state below reading That's everything due.",
+  },
+];
+
+/**
+ * The four tabs, as a carousel the scroll turns. One --p again: each phone works out how far it
+ * is from the front with `calc(--p * (n - 1) - --i)`, and positions itself from that, so the
+ * whole thing is four multiplications and no JavaScript per frame.
+ *
+ * Depth ordering comes from preserve-3d rather than a z-index, because a z-index cannot be
+ * derived from a fractional custom property, and the browser already knows which phone is
+ * nearest once they are really in 3D.
+ */
+function Screens() {
+  const track = useRef(null);
+  const [, effective] = useTheme();
+  const suffix = effective === "dark" ? "_midnight" : "";
+  useScrollProgress(track);
+
+  return (
+    <section class="section carousel" id="screens">
+      <div class="carousel-track" ref={track} style={{ "--n": SCREENS.length - 1 }}>
+        <div class="carousel-stage">
+          <div class="wrap carousel-copy">
+            <p class="eyebrow">The app</p>
+            <h2>Today, in, kept, and due</h2>
+          </div>
+          <div class="carousel-deck">
+            {SCREENS.map((screen, index) => (
+              <div class="carousel-slot" key={screen.name} style={{ "--i": index }}>
+                <div class="phone-body">
+                  <img
+                    src={`/media/art/${screen.name}${suffix}.webp`}
+                    width="1170"
+                    height="2532"
+                    alt={screen.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <p class="carousel-labels">
+            {SCREENS.map((screen, index) => (
+              <span class="carousel-label" key={screen.name} style={{ "--i": index }}>
+                {screen.label}
+              </span>
+            ))}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 /* ------------------------------------------------------------ board zoom -- */
