@@ -153,12 +153,75 @@ function Loop() {
                 <h3>{step.title}</h3>
                 {step.body.map((p, i) => <p key={i}>{p}</p>)}
               </div>
-              <Art name={step.art} width={step.w} height={step.h} alt={step.alt} />
+              {step.art === "bubble"
+                ? <BubblePlay alt={step.alt} />
+                : <Art name={step.art} width={step.w} height={step.h} alt={step.alt} />}
             </li>
           ))}
         </ol>
       </div>
     </section>
+  );
+}
+
+/* ----------------------------------------------------------- bubble play -- */
+
+/**
+ * The bubble, doing what a bubble does. This is not a screen recording: the bubble is an Android
+ * surface, so it is put back together here out of the app's own pieces — the real adaptive icon
+ * the bubble wears, and the rendered sheet it opens into — moving the way the platform moves it.
+ * A recording of a real one would be better, and can replace this without the page changing
+ * shape; this at least shows the behaviour rather than a still of the end of it.
+ *
+ * It runs only while it is on screen, and holds a single still frame for anyone who has asked
+ * for less motion.
+ */
+function BubblePlay({ alt }) {
+  const stage = useRef(null);
+  const [playing, setPlaying] = useState(false);
+  const [, effective] = useTheme();
+  const suffix = effective === "dark" ? "_midnight" : "";
+
+  useEffect(() => {
+    const node = stage.current;
+    if (!node || typeof IntersectionObserver !== "function") return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPlaying(entry.isIntersecting),
+      { threshold: 0.35 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <figure class={playing ? "bubble-play is-playing" : "bubble-play"} ref={stage}>
+      <div class="bubble-stage">
+        <img
+          class="bubble-behind"
+          src={`/media/art/screen_board_empty${suffix}.webp`}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+        />
+        <img
+          class="bubble-dot"
+          src={`/media/art/bubble_icon${suffix}.webp`}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+        />
+        <img
+          class="bubble-sheet"
+          src={`/media/art/bubble${suffix}.webp`}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      <figcaption>The bubble arriving, and opening. Recreated from the app's own pieces.</figcaption>
+    </figure>
   );
 }
 
