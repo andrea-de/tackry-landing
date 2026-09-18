@@ -856,34 +856,62 @@ summary:focus-visible {
 /* ------------------------------------------------------------- today pull */
 
 /* Today runs the Board's effect backwards, so it mirrors its layout: the phone on
-   the left, and on the right the copy with the stack that drops into it. */
+   the left, the copy on the right. The opening state — the stack and its fanned
+   cards — stands in the phone's place until the phone arrives. */
 @media (min-width: 900px) {
   .pull-stage .zoom-right { order: -1; }
 }
 
-.pull-field {
-  position: relative;
-  margin-top: 1.6rem;
-  min-height: clamp(180px, 26vh, 280px);
+.pull-open {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  justify-items: center;
+  align-content: center;
+  gap: clamp(0.6rem, 2vh, 1.2rem);
+  pointer-events: none;
 }
 
 .pull-deck {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: min(300px, 70%);
+  width: min(260px, 64%);
   height: auto;
   transform-origin: 0 0;
-  /* The drop finishes at --p 0.8 and the fade runs after it, so the stack is in
-     place on the screen before it hands over to the one the app draws there. */
-  --q: clamp(0, calc(var(--p) * 1.25), 1);
+  /* The drop finishes at --p 0.85, after the cards have gone and the phone has
+     arrived, and the stack simply stays: the screen behind it has its place
+     erased, so this is the only stack there is. */
+  --q: clamp(0, calc(var(--p) * 1.18), 1);
   transform:
     translate(calc(var(--ex, 0px) * var(--q)), calc(var(--ey, 0px) * var(--q)))
     scale(calc(1 + (var(--s, 1) - 1) * var(--q)));
-  opacity: clamp(0, calc(10 - var(--p) * 10), 1);
+  will-change: transform;
+  z-index: 2;
+}
+
+.pull-fan {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(0.5rem, 1.6vh, 0.9rem);
+  width: min(300px, 82%);
+  align-content: start;
+}
+
+.fan-card {
+  width: 100%;
+  height: auto;
+  /* Falls away, each a little after the one before it, before the phone fades in
+     over the space they were standing in. */
+  transform: translateY(calc(var(--fall, 200px) * clamp(0, calc((var(--p) - var(--delay, 0)) * 4), 1)));
+  opacity: clamp(0, calc(1.1 - (var(--p) - var(--delay, 0)) * 5), 1);
   will-change: transform, opacity;
 }
 
+.pull-scene {
+  /* Arrives once the cards are on their way out. */
+  opacity: clamp(0, calc(var(--p) * 3 - 0.9), 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .pull-deck { display: none; }
+  .pull-open { display: none; }
+  .pull-scene { opacity: 1; }
 }

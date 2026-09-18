@@ -378,26 +378,30 @@ function rowHeight(cards, columns, row, sceneBox, scale) {
 /* ----------------------------------------------------------- today pull -- */
 
 /**
- * Today, the Board's effect run backwards. The Board lets four cards out of the phone; this one
- * takes a single thing in — the stack itself, the app's own mark holding your pinned tacks —
- * and drops it into its place on Today's screen as you scroll.
+ * Today, the Board's effect run backwards. The Board lets four cards out of a phone; this one
+ * puts one thing in.
  *
- * Same machinery: one --p, and a target measured against the live boxes rather than guessed, so
- * the stack lands in the rect the export found for it at any width.
+ * It opens on what Today holds — the stack, and the cards it fans out into, standing where the
+ * phone will be. Scrolling drops the cards away, fades the phone in behind them, and carries the
+ * stack down into its place on the screen. The screen it fades in has that place erased, so the
+ * stack arriving is the only one: nothing duplicates and nothing has to be hidden.
  */
 function TodayPull() {
   const track = useRef(null);
   const scene = useRef(null);
   const deck = useRef(null);
+  const fan = useRef(null);
   const [, effective] = useTheme();
   const suffix = effective === "dark" ? "_midnight" : "";
+  const cards = Array.from({ length: Math.min(TODAY_TARGET.cards, 4) }, (_, i) => i);
 
   useScrollProgress(track);
 
   useEffect(() => {
     const sceneNode = scene.current;
     const deckNode = deck.current;
-    if (!sceneNode || !deckNode) return undefined;
+    const fanNode = fan.current;
+    if (!sceneNode || !deckNode || !fanNode) return undefined;
 
     const layout = () => {
       const sceneBox = sceneNode.getBoundingClientRect();
@@ -411,17 +415,23 @@ function TodayPull() {
       const screenHeight = sceneBox.height - 20;
       const target = TODAY_TARGET.deck;
 
-      const scale = (target.width * screenWidth) / deckBox.width;
+      deckNode.style.setProperty("--s", ((target.width * screenWidth) / deckBox.width).toFixed(4));
       deckNode.style.setProperty("--ex", `${(screenLeft + target.left * screenWidth - deckBox.left).toFixed(1)}px`);
       deckNode.style.setProperty("--ey", `${(screenTop + target.top * screenHeight - deckBox.top).toFixed(1)}px`);
-      deckNode.style.setProperty("--s", scale.toFixed(4));
+
+      // The cards fall straight down and out, each a little after the one before it.
+      const nodes = [...fanNode.querySelectorAll(".fan-card")];
+      nodes.forEach((node, index) => {
+        node.style.setProperty("--fall", `${(sceneBox.height * 0.55).toFixed(0)}px`);
+        node.style.setProperty("--delay", (index * 0.05).toFixed(2));
+      });
     };
 
     layout();
     deckNode.addEventListener("load", layout);
     const observer = new ResizeObserver(layout);
     observer.observe(sceneNode);
-    observer.observe(deckNode.parentElement);
+    observer.observe(fanNode);
     window.addEventListener("resize", layout);
     return () => {
       deckNode.removeEventListener("load", layout);
@@ -435,13 +445,35 @@ function TodayPull() {
       <div class="zoom-track" ref={track}>
         <div class="zoom-stage pull-stage">
           <div class="zoom-right">
-            <div class="zoom-scene" ref={scene}>
+            <div class="pull-open" aria-hidden="true">
+              <img
+                class="pull-deck"
+                ref={deck}
+                src={`/media/art/today_deck${suffix}.webp`}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="pull-fan" ref={fan}>
+                {cards.map((index) => (
+                  <img
+                    key={index}
+                    class="fan-card"
+                    src={`/media/art/today_card_${index + 1}${suffix}.webp`}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ))}
+              </div>
+            </div>
+            <div class="zoom-scene pull-scene" ref={scene}>
               <div class="phone-body">
                 <img
-                  src={`/media/art/screen_today${suffix}.webp`}
+                  src={`/media/art/screen_today_empty${suffix}.webp`}
                   width="1170"
                   height="2532"
-                  alt="Tackry's Today screen: a stack of tilted plates holding the pinned tacks, with counts for what is due now, pinned and newly captured."
+                  alt="Tackry's Today screen: the stack of pinned tacks, with counts for what is due now, pinned and newly captured, and the reminders due next."
                   loading="lazy"
                   decoding="async"
                 />
@@ -455,16 +487,6 @@ function TodayPull() {
               Everything you pinned collects into one stack on Today — the app's own mark, holding
               your things. Tap it and the stack fans back out into a grid.
             </p>
-            <div class="pull-field">
-              <img
-                class="pull-deck"
-                ref={deck}
-                src={`/media/art/today_deck${suffix}.webp`}
-                alt="Three tilted plates stacked into Tackry's mark, the top one a pinned tack."
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
           </div>
         </div>
       </div>
