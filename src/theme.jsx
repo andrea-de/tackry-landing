@@ -111,3 +111,27 @@ export function ThemeToggle() {
 }
 
 apply();
+
+/**
+ * A whole screen inside a drawn phone. The frame is CSS, not part of the image: it follows the
+ * page's own theme, stays sharp at any size, and costs nothing to change.
+ */
+export function Phone({ name, alt, caption }) {
+  const [, effective] = useTheme();
+  const file = effective === "dark" ? `${name}_midnight` : name;
+  return (
+    <figure class="phone">
+      <div class="phone-body">
+        <img
+          src={`/media/art/${file}.webp`}
+          width="1170"
+          height="2532"
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+      {caption ? <figcaption>{caption}</figcaption> : null}
+    </figure>
+  );
+}

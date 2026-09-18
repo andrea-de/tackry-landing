@@ -47,6 +47,10 @@
   --plate-hole: #5c8ca8;
 
   --shadow: 0 1px 2px rgba(26, 23, 18, 0.06), 0 12px 28px rgba(26, 23, 18, 0.08);
+  --phone-shell: #d9cdb9;
+  --phone-edge: rgba(0, 0, 0, 0.18);
+  --phone-slot: rgba(0, 0, 0, 0.3);
+
   --radius: 18px;
   --wrap: 1120px;
 }
@@ -76,6 +80,10 @@
     --plate-outline: #46535e;
     --plate-hole: #5b97c4;
 
+    --phone-shell: #0e161d;
+    --phone-edge: rgba(255, 255, 255, 0.12);
+    --phone-slot: rgba(255, 255, 255, 0.24);
+
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 32px rgba(0, 0, 0, 0.35);
   }
 }
@@ -101,6 +109,10 @@
     --plate-2-edge: #efae1c;
     --plate-outline: #46535e;
     --plate-hole: #5b97c4;
+
+    --phone-shell: #0e161d;
+    --phone-edge: rgba(255, 255, 255, 0.12);
+    --phone-slot: rgba(255, 255, 255, 0.24);
 
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 14px 32px rgba(0, 0, 0, 0.35);
 }
@@ -700,4 +712,59 @@ summary:focus-visible {
 .theme-toggle button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------------- phones */
+
+.phone-row {
+  display: grid;
+  gap: clamp(1.6rem, 4vw, 2.4rem);
+  justify-items: center;
+  margin-top: clamp(1.6rem, 4vw, 2.6rem);
+}
+
+@media (min-width: 760px) {
+  .phone-row { grid-template-columns: repeat(3, 1fr); align-items: start; }
+}
+
+.phone { margin: 0; max-width: 300px; }
+
+/* The bezel is drawn here rather than baked into the render: it follows the page
+   theme, stays sharp at any size, and the screen inside stays a plain image. */
+.phone-body {
+  position: relative;
+  padding: 10px;
+  border-radius: 34px;
+  background: var(--phone-shell);
+  box-shadow:
+    inset 0 0 0 1px var(--phone-edge),
+    var(--shadow);
+}
+
+.phone-body img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 25px;
+}
+
+/* The speaker slot: one small mark, enough to read as a phone without pretending
+   to be a particular one. */
+.phone-body::after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--phone-slot);
+}
+
+.phone figcaption {
+  margin-top: 0.85rem;
+  font-size: 0.92rem;
+  color: var(--muted);
+  text-align: center;
 }

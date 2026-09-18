@@ -1,7 +1,7 @@
 import { render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import { Mark, Plate } from "./mark.jsx";
-import { Art, ThemeToggle } from "./theme.jsx";
+import { Art, Phone, ThemeToggle } from "./theme.jsx";
 import "./styles.css";
 
 const MAILTO = "mailto:contact@tackry.com?subject=Tackry";
@@ -183,6 +183,40 @@ function Today() {
             name="today_fan" width="1170" height="1521"
             alt="The same plates after tapping the stack, fanned into a two-column grid of cards outlined in green, blue and orange."
             caption="Tapped: the same plates, fanned into a grid."
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* --------------------------------------------------------------- screens -- */
+
+function Screens() {
+  return (
+    <section class="section" id="screens">
+      <div class="wrap">
+        <p class="eyebrow">The app</p>
+        <h2>Three tabs and a board</h2>
+        <p class="section-lede">
+          Notifications is what came in and has not been dealt with. The Board is everything you
+          kept. Reminders is what is coming back, and when.
+        </p>
+        <div class="phone-row">
+          <Phone
+            name="screen_notifications"
+            alt="Tackry's Notifications tab: recent captures from Slack and Gmail as cards, with filter chips and the five-tab bar at the bottom."
+            caption="Notifications — what came in."
+          />
+          <Phone
+            name="screen_board"
+            alt="Tackry's Tackboard: a search field, category chips, and saved tacks as cards outlined in green, blue and orange, with an add button."
+            caption="Board — everything you kept."
+          />
+          <Phone
+            name="screen_reminders"
+            alt="Tackry's Reminders tab on the Now bucket: one reminder due, with an empty state below reading That's everything due."
+            caption="Reminders — what is coming back."
           />
         </div>
       </div>
@@ -453,6 +487,7 @@ function App() {
         <Hero />
         <Loop />
         <Today />
+        <Screens />
         <Meaning />
         <Themes />
         <Privacy />
