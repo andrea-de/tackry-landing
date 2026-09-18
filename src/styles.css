@@ -338,9 +338,7 @@ summary:focus-visible {
 .hero-shot img {
   width: min(420px, 92vw);
   margin-inline: auto;
-  border-radius: 26px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  /* Transparent element art — no frame, see .art below. */
 }
 
 @media (min-width: 900px) {
@@ -372,14 +370,18 @@ summary:focus-visible {
   margin-inline: auto;
 }
 
-/* Element art, not screenshots: each image is already cropped to one card, one
-   grid or one bubble with its own margin baked in, so it wants to be as wide as
-   its column rather than phone-shaped. */
+/* Element art, not screenshots: each image is one card, one grid or one bubble
+   keyed onto transparency with its own margin baked in. It sits directly on the
+   section, so it takes no frame of its own — a border or shadow here would draw
+   a rectangle around something that is not rectangular. */
 .art img {
   width: 100%;
   max-width: 520px;
   margin-inline: auto;
-  border-radius: 20px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
 }
 
 .shot figcaption {
