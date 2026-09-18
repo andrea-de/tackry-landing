@@ -117,21 +117,28 @@ apply();
  * page's own theme, stays sharp at any size, and costs nothing to change.
  */
 export function Phone({ name, alt, caption }) {
+  return (
+    <figure class="phone">
+      <PhoneShell name={name} alt={alt} />
+      {caption ? <figcaption>{caption}</figcaption> : null}
+    </figure>
+  );
+}
+
+/** Just the drawn phone with a screen in it, for places that are not a figure. */
+export function PhoneShell({ name, alt }) {
   const [, effective] = useTheme();
   const file = effective === "dark" ? `${name}_midnight` : name;
   return (
-    <figure class="phone">
-      <div class="phone-body">
-        <img
-          src={`/media/art/${file}.webp`}
-          width="1170"
-          height="2532"
-          alt={alt}
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
-      {caption ? <figcaption>{caption}</figcaption> : null}
-    </figure>
+    <div class="phone-body">
+      <img
+        src={`/media/art/${file}.webp`}
+        width="1170"
+        height="2532"
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
   );
 }

@@ -748,23 +748,99 @@ summary:focus-visible {
   border-radius: 25px;
 }
 
-/* The speaker slot: one small mark, enough to read as a phone without pretending
-   to be a particular one. */
-.phone-body::after {
-  content: "";
-  position: absolute;
-  top: 17px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52px;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--phone-slot);
-}
 
 .phone figcaption {
   margin-top: 0.85rem;
   font-size: 0.92rem;
   color: var(--muted);
   text-align: center;
+}
+
+/* ------------------------------------------------------------- board zoom */
+
+/* One number drives this section: --p goes 0 to 1 as it scrolls past. The phone
+   shrinks out of the way and the cards it was holding spread across the page. */
+.zoom { padding: 0; }
+
+.zoom-track {
+  --p: 0;
+  height: 280vh;
+}
+
+.zoom-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.zoom-copy {
+  position: absolute;
+  top: clamp(1.6rem, 7vh, 4.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  opacity: clamp(0, calc(1.6 - var(--p) * 3.2), 1);
+}
+
+/* The line the whole effect exists to make; it arrives once the cards have. */
+.zoom-payoff {
+  position: absolute;
+  bottom: clamp(1.4rem, 6vh, 3.6rem);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: 34ch;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--muted);
+  opacity: clamp(0, calc(var(--p) * 4.4 - 3.1), 1);
+}
+
+.zoom-copy .section-lede { margin-inline: auto; }
+
+.zoom-phone {
+  width: min(300px, 62vw);
+  transform: scale(calc(1 - 0.5 * var(--p)));
+  /* Holds full size for the first third, then goes; the cards are well clear by then. */
+  opacity: clamp(0, calc(1.9 - var(--p) * 3.1), 1);
+  will-change: transform, opacity;
+}
+
+.zoom-phone .phone-body img { max-height: 64vh; width: auto; margin-inline: auto; }
+
+.zoom-card {
+  position: absolute;
+  width: min(340px, 74vw);
+  height: auto;
+  opacity: clamp(0, calc((var(--p) - var(--delay)) * 3.2 - 0.6), 1);
+  transform:
+    translate(calc(var(--dx) * var(--p)), calc(var(--dy) * var(--p)))
+    scale(calc(0.5 + 0.5 * var(--p)));
+  will-change: transform, opacity;
+}
+
+/* Narrow screens have no room to fan three cards around a phone, so they land in
+   a column instead of a ring — which means their own spacing, not the desktop
+   offsets flattened, or the two with a similar --dy land on top of each other. */
+@media (max-width: 700px) {
+  .zoom-card {
+    width: min(320px, 82vw);
+    transform: translate(0, calc(var(--dy-narrow) * var(--p))) scale(calc(0.7 + 0.3 * var(--p)));
+  }
+
+  .zoom-card:nth-of-type(1) { --dy-narrow: -25vh; }
+  .zoom-card:nth-of-type(2) { --dy-narrow: 0vh; }
+  .zoom-card:nth-of-type(3) { --dy-narrow: 25vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zoom-track { height: auto; }
+  .zoom-stage { position: static; height: auto; padding: 3rem 0; gap: 1.2rem; }
+  .zoom-copy { position: static; transform: none; opacity: 1; }
+  .zoom-phone { display: none; }
+  .zoom-card { position: static; transform: none; opacity: 1; }
+  .zoom-payoff { position: static; transform: none; opacity: 1; }
 }

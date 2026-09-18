@@ -1,7 +1,7 @@
 import { render } from "preact";
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { Mark, Plate } from "./mark.jsx";
-import { Art, Phone, ThemeToggle } from "./theme.jsx";
+import { Art, Phone, PhoneShell, ThemeToggle, useTheme } from "./theme.jsx";
 import "./styles.css";
 
 const MAILTO = "mailto:contact@tackry.com?subject=Tackry";
@@ -197,21 +197,21 @@ function Screens() {
     <section class="section" id="screens">
       <div class="wrap">
         <p class="eyebrow">The app</p>
-        <h2>Three tabs and a board</h2>
+        <h2>Today, in, and due</h2>
         <p class="section-lede">
-          Notifications is what came in and has not been dealt with. The Board is everything you
-          kept. Reminders is what is coming back, and when.
+          Today is what needs you now. Notifications is what came in and has not been dealt with.
+          Reminders is what is coming back, and when.
         </p>
         <div class="phone-row">
+          <Phone
+            name="screen_today"
+            alt="Tackry's Today screen: a stack of three tilted plates holding a pinned tack, counts for due now, pinned and new, and the reminders due next."
+            caption="Today — what needs you now."
+          />
           <Phone
             name="screen_notifications"
             alt="Tackry's Notifications tab: recent captures from Slack and Gmail as cards, with filter chips and the five-tab bar at the bottom."
             caption="Notifications — what came in."
-          />
-          <Phone
-            name="screen_board"
-            alt="Tackry's Tackboard: a search field, category chips, and saved tacks as cards outlined in green, blue and orange, with an add button."
-            caption="Board — everything you kept."
           />
           <Phone
             name="screen_reminders"
@@ -221,6 +221,95 @@ function Screens() {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ------------------------------------------------------------ board zoom -- */
+
+/**
+ * The Board, and then the Board's cards. Scrolling through this section drives one number,
+ * --p, from 0 to 1: the phone shrinks and fades out of it while the cards it was holding scale
+ * up and spread across the page. The whole effect is one CSS variable, so it costs one rAF
+ * frame to drive and degrades to the end state when it cannot run.
+ */
+function BoardZoom() {
+  const track = useRef(null);
+  useEffect(() => {
+    const node = track.current;
+    if (!node) return undefined;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      node.style.setProperty("--p", "1");
+      return undefined;
+    }
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const box = node.getBoundingClientRect();
+      // 0 when the section's top reaches the viewport top, 1 when its bottom does.
+      const travel = box.height - window.innerHeight;
+      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, -box.top / travel));
+      node.style.setProperty("--p", p.toFixed(4));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  // Offsets are viewport units, so the three land in the same triangle at any width, and each
+  // starts a little after the one before it.
+  const cards = [
+    { name: "tack_card", x: "-25vw", y: "-21vh", delay: 0, alt: "A saved note as a tack, outlined in green." },
+    { name: "notification_card", x: "25vw", y: "-19vh", delay: 0.08, alt: "A captured notification, outlined in blue." },
+    { name: "reminder_card", x: "-2vw", y: "22vh", delay: 0.16, alt: "A tack with a reminder on it, outlined in orange." },
+  ];
+
+  return (
+    <section class="section section-alt zoom" id="board">
+      <div class="zoom-track" ref={track}>
+        <div class="zoom-stage">
+          <div class="wrap zoom-copy">
+            <p class="eyebrow">The board</p>
+            <h2>Everything you kept, in one flat place</h2>
+            <p class="section-lede">
+              No folders, no inbox to declare bankruptcy on. Search it, filter it by category, pin
+              what matters — and read what a thing is from its colour before you read a word.
+            </p>
+          </div>
+          <div class="zoom-phone">
+            <PhoneShell name="screen_board" alt="Tackry's Tackboard in card view: saved tacks as plate-coloured cards, with search and category chips above and the tab bar below." />
+          </div>
+          {cards.map((card) => (
+            <ZoomCard key={card.name} {...card} />
+          ))}
+          <p class="zoom-payoff">A card's colour says what it is: kept, captured, or coming back.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ZoomCard({ name, x, y, delay, alt }) {
+  const [, effective] = useTheme();
+  const file = effective === "dark" ? `${name}_midnight` : name;
+  return (
+    <img
+      class="zoom-card"
+      style={{ "--dx": x, "--dy": y, "--delay": delay }}
+      src={`/media/art/${file}.webp`}
+      width="1008"
+      height="413"
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+    />
   );
 }
 
@@ -488,6 +577,7 @@ function App() {
         <Loop />
         <Today />
         <Screens />
+        <BoardZoom />
         <Meaning />
         <Themes />
         <Privacy />
