@@ -231,9 +231,11 @@ function Screens() {
  * The Board, and then the Board's own cards. Scrolling drives one number, --p, from 0 to 1: the
  * phone shrinks and fades while the cards lift off it and spread across the page.
  *
- * The cards are not stand-ins. They are sliced out of the very screenshot behind them by
+ * The cards are not stand-ins. They are sliced out of that very screenshot by
  * scripts/export_landing_art.py, which also records where each one sat as a fraction of the
- * screen, so at rest each sits exactly over itself and the lift-off has nothing to line up.
+ * screen — and writes the board back out with those cards erased. The phone shows the emptied
+ * board, so each card exists exactly once: at rest it sits in its own hole and the screen looks
+ * whole, and when it lifts off it leaves the gap behind rather than a copy of itself.
  */
 function BoardZoom() {
   const track = useRef(null);
@@ -288,7 +290,7 @@ function BoardZoom() {
           <div class="zoom-scene">
             <div class="phone-body zoom-phone">
               <img
-                src={`/media/art/screen_board${suffix}.webp`}
+                src={`/media/art/screen_board_empty${suffix}.webp`}
                 width="1170"
                 height="2532"
                 alt="Tackry's Tackboard in card view: saved tacks as a two-column grid of cards, each outlined in the colour of what it is."
