@@ -977,18 +977,25 @@ summary:focus-visible {
   0% { opacity: 0; transform: translate(calc(-50% + 300%), 430%) scale(0.5); }
   6% { opacity: 1; transform: translate(calc(-50% + 240%), 430%) scale(1.12); }
   10% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
-  22% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
-  31% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  86% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  94% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
+  /* Sits at the edge, then goes to the top in about a fifth of a second, which is
+     what the platform does. An even ease across the whole timeline made this a
+     one-second drift, and anyone who uses bubbles reads that as broken. */
+  24% {
+    opacity: 1;
+    transform: translate(calc(-50% + 250%), 430%) scale(1);
+    animation-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1);
+  }
+  26.5% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  86% { opacity: 1; transform: translate(-50%, 0) scale(1); animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+  88.5% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
   100% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
 }
 
 @keyframes bubble-sheet {
-  0%, 29% { opacity: 0; transform: scale(0.35) translateY(-14%); }
-  38% { opacity: 1; transform: scale(1) translateY(0); }
-  86% { opacity: 1; transform: scale(1) translateY(0); }
-  92% { opacity: 0; transform: scale(0.35) translateY(-14%); }
+  0%, 26% { opacity: 0; transform: scale(0.35) translateY(-14%); animation-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1); }
+  31% { opacity: 1; transform: scale(1) translateY(0); }
+  85% { opacity: 1; transform: scale(1) translateY(0); animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  88% { opacity: 0; transform: scale(0.35) translateY(-14%); }
   100% { opacity: 0; transform: scale(0.35) translateY(-14%); }
 }
 

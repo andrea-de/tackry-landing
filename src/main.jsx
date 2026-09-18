@@ -19,8 +19,8 @@ function Header() {
   }, []);
 
   const links = [
-    ["#loop", "How it works"],
     ["#today", "Today"],
+    ["#loop", "How it works"],
     ["#themes", "Themes"],
     ["#privacy", "Privacy"],
     ["#faq", "FAQ"],
@@ -812,11 +812,11 @@ function App() {
       <Header />
       <main id="main">
         <Hero />
+        <Meaning />
+        <TodayPull />
         <Loop />
         <Screens />
         <BoardZoom />
-        <TodayPull />
-        <Meaning />
         <Themes />
         <Privacy />
         <Reach />
