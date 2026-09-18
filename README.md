@@ -1,49 +1,44 @@
 # Tackry Landing
 
-Marketing landing page for Tackry, built as a standalone site inside the main Tackstack workspace.
+The marketing site for Tackry, the local-first Android app. Static, deployed to
+Vercel on push.
 
 ## Stack
 
-- `preact`
-- `vite`
-- plain CSS in `src/styles.css`
+- Preact + Vite, plain CSS. No UI framework, no runtime dependencies beyond Preact.
+- Space Grotesk, subset from the app's own `res/font/*.ttf` and self-hosted as
+  woff2 in `public/fonts/` (SIL Open Font License 1.1).
 
-## Project Structure
+## Layout
 
-- `index.html`: app entry
-- `src/main.js`: page structure, sample content, interactions
-- `src/styles.css`: layout, theming, animation
-- `public/media/`: static assets used by the page
-- `media/`: fallback media copies for simple static serving
+- `index.html` — entry, meta and font preloads
+- `src/main.jsx` — every section of the page and all of its copy
+- `src/mark.jsx` — the Tackry mark as inline SVG, regenerated from the app's
+  `com.tackry.intro.IntroGeometry` rather than screenshotted
+- `src/styles.css` — layout and the two colour schemes. Light mode uses the
+  app's Light palette, dark mode its Midnight palette, both copied from
+  `com.tackry.ui.theme.TackryPalette`
+- `public/media/` — screenshots, exported from the app's Roborazzi output
+  (`app/build/outputs/roborazzi/`) and resized to webp
+- `public/privacy/` — the privacy policy. **This URL is referenced from the Play
+  listing and from inside the app; it must keep working.**
 
-## Local Development
-
-Install dependencies and run the dev server:
+## Develop
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Static Preview
-
-If you just want to preview the current files without the Vite dev server:
-
-```bash
-cd landing
-python3 -m http.server 4173
-```
-
-Then open `http://localhost:4173`.
-
 ## Build
 
 ```bash
-npm run build
+npm run build   # output in dist/
 ```
 
-## Notes
+## Refreshing the screenshots
 
-- The page supports both light and dark preview modes.
-- Most product examples on the page are web-built components instead of screenshots.
-- App-store screenshots and related marketing source assets live in the main Tackstack workspace.
+The screenshots are real renders, not mock-ups. Regenerate them in the app repo
+(the Roborazzi screenshot tests), then resize the ones this page uses into
+`public/media/` as webp. Keep the `width`/`height` attributes in `src/main.jsx`
+matching the new files so the page does not shift while images load.
