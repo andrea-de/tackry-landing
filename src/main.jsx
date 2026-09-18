@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { Mark, Plate } from "./mark.jsx";
 import { Art, Phone, PhoneShell, ThemeToggle, useTheme } from "./theme.jsx";
 import BOARD_CARDS from "../public/media/art/board_cards.json";
+import TODAY_TARGET from "../public/media/art/today_target.json";
 import "./styles.css";
 
 const MAILTO = "mailto:contact@tackry.com?subject=Tackry";
@@ -161,36 +162,6 @@ function Loop() {
   );
 }
 
-/* ----------------------------------------------------------------- today -- */
-
-function Today() {
-  return (
-    <section class="section section-alt" id="today">
-      <div class="wrap">
-        <p class="eyebrow">Today</p>
-        <h2>A stack that fans out</h2>
-        <p class="section-lede">
-          Today opens on a single stack of plates — the app's own mark, holding your pinned
-          tacks. Tap it and the stack fans into a grid. Tap a card and it grows into a full
-          view you can act on, then shrinks back where it came from.
-        </p>
-        <div class="today-grid">
-          <Art
-            name="today_stack" width="1122" height="944"
-            alt="Today with the stack closed: three tilted plates holding a pinned tack, above counts reading 1 due now, 2 pinned, 5 new captures."
-            caption="Closed: one stack, and what is waiting behind it."
-          />
-          <Art
-            name="today_fan" width="1170" height="1521"
-            alt="The same plates after tapping the stack, fanned into a two-column grid of cards outlined in green, blue and orange."
-            caption="Tapped: the same plates, fanned into a grid."
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* --------------------------------------------------------------- screens -- */
 
 function Screens() {
@@ -225,33 +196,10 @@ function Screens() {
   );
 }
 
-/* ------------------------------------------------------------ board zoom -- */
-
-const BOARD_TRAVELLERS = 4;
-
-/**
- * The Board, and then the Board's own cards. Scrolling drives one number, --p, from 0 to 1: the
- * phone fades and the cards slide off it into a grid beside the copy.
- *
- * The cards are not stand-ins. They are sliced out of that very screenshot by
- * scripts/export_landing_art.py, which also records where each one sat as a fraction of the
- * screen — and writes the board back out with those cards erased. The phone shows the emptied
- * board, so each card exists exactly once: at rest it sits in its own hole and the screen looks
- * whole, and when it leaves it takes the gap with it.
- *
- * Where they land is measured, not guessed: the target grid is laid out against the live box, so
- * the travel is exact at any width and the cards barely have to scale, which keeps them sharp.
- */
-function BoardZoom() {
-  const track = useRef(null);
-  const scene = useRef(null);
-  const stage = useRef(null);
-  const [, effective] = useTheme();
-  const suffix = effective === "dark" ? "_midnight" : "";
-  const cards = BOARD_CARDS.slice(0, BOARD_TRAVELLERS);
-
+/** Drives --p on `node` from 0 to 1 across the section's scroll, one rAF at a time. */
+function useScrollProgress(ref) {
   useEffect(() => {
-    const node = track.current;
+    const node = ref.current;
     if (!node) return undefined;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
       node.style.setProperty("--p", "1");
@@ -277,7 +225,35 @@ function BoardZoom() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [ref]);
+}
+
+/* ------------------------------------------------------------ board zoom -- */
+
+const BOARD_TRAVELLERS = 4;
+
+/**
+ * The Board, and then the Board's own cards. Scrolling drives one number, --p, from 0 to 1: the
+ * phone fades and the cards slide off it into a grid beside the copy.
+ *
+ * The cards are not stand-ins. They are sliced out of that very screenshot by
+ * scripts/export_landing_art.py, which also records where each one sat as a fraction of the
+ * screen — and writes the board back out with those cards erased. The phone shows the emptied
+ * board, so each card exists exactly once: at rest it sits in its own hole and the screen looks
+ * whole, and when it leaves it takes the gap with it.
+ *
+ * Where they land is measured, not guessed: the target grid is laid out against the live box, so
+ * the travel is exact at any width and the cards barely have to scale, which keeps them sharp.
+ */
+function BoardZoom() {
+  const track = useRef(null);
+  const scene = useRef(null);
+  const stage = useRef(null);
+  const [, effective] = useTheme();
+  const suffix = effective === "dark" ? "_midnight" : "";
+  const cards = BOARD_CARDS.slice(0, BOARD_TRAVELLERS);
+
+  useScrollProgress(track);
 
   // Lay the landing grid out against the real boxes and hand each card its own delta. Done on
   // every resize because both the screen box and the space to land in are fluid.
@@ -397,6 +373,130 @@ function BoardZoom() {
 function rowHeight(cards, columns, row, sceneBox, scale) {
   const inRow = cards.slice(row * columns, row * columns + columns);
   return Math.max(...inRow.map((card) => card.height * sceneBox.height * scale));
+}
+
+/* ----------------------------------------------------------- today pull -- */
+
+/**
+ * Today, run the other way: the cards start spread across the page and gather into the stack on
+ * the screen as you scroll. Same machinery as the Board — one --p, targets measured against the
+ * live boxes — with start and end swapped, and the cards fading as they land so what is left is
+ * the stack the app actually draws.
+ */
+function TodayPull() {
+  const track = useRef(null);
+  const scene = useRef(null);
+  const field = useRef(null);
+  const [, effective] = useTheme();
+  const suffix = effective === "dark" ? "_midnight" : "";
+  const count = Math.min(TODAY_TARGET.cards, 6);
+
+  useScrollProgress(track);
+
+  useEffect(() => {
+    const sceneNode = scene.current;
+    const fieldNode = field.current;
+    if (!sceneNode || !fieldNode) return undefined;
+
+    const layout = () => {
+      const sceneBox = sceneNode.getBoundingClientRect();
+      const fieldBox = fieldNode.getBoundingClientRect();
+      if (!sceneBox.width || !fieldBox.width) return;
+
+      const nodes = [...fieldNode.querySelectorAll(".pull-card")];
+      const columns = fieldBox.width < 420 ? 2 : 2;
+      const gap = Math.min(16, fieldBox.width * 0.03);
+      const columnWidth = (fieldBox.width - gap * (columns - 1)) / columns;
+
+      const deck = TODAY_TARGET.deck;
+      const deckLeft = sceneBox.left + 10 + deck.left * (sceneBox.width - 20);
+      const deckTop = sceneBox.top + 10 + deck.top * (sceneBox.height - 20);
+      const deckWidth = deck.width * (sceneBox.width - 20);
+
+      let rowTop = 0;
+      let rowTallest = 0;
+      nodes.forEach((node, index) => {
+        const column = index % columns;
+        const ratio = (node.naturalHeight || 1) / (node.naturalWidth || 1);
+        const cardHeight = columnWidth * ratio;
+        if (column === 0 && index > 0) {
+          rowTop += rowTallest + gap;
+          rowTallest = 0;
+        }
+        rowTallest = Math.max(rowTallest, cardHeight);
+
+        const left = column * (columnWidth + gap);
+        node.style.left = `${left}px`;
+        node.style.top = `${rowTop}px`;
+        node.style.width = `${columnWidth}px`;
+
+        // Every card lands on the deck, shrunk to its width and nudged so the pile reads as a
+        // stack rather than one card.
+        const nudge = (index - (nodes.length - 1) / 2) * 3;
+        node.style.setProperty("--ex", `${(deckLeft - fieldBox.left - left + nudge).toFixed(1)}px`);
+        node.style.setProperty("--ey", `${(deckTop - fieldBox.top - rowTop + nudge * 0.6).toFixed(1)}px`);
+        node.style.setProperty("--s", (deckWidth / columnWidth).toFixed(4));
+      });
+    };
+
+    layout();
+    // The rows are laid out from each card's own aspect ratio, which is not known until the
+    // image has loaded — and these are lazy, so that is after the first pass.
+    const nodes = [...fieldNode.querySelectorAll(".pull-card")];
+    nodes.forEach((node) => node.addEventListener("load", layout));
+    const observer = new ResizeObserver(layout);
+    observer.observe(sceneNode);
+    observer.observe(fieldNode);
+    window.addEventListener("resize", layout);
+    return () => {
+      nodes.forEach((node) => node.removeEventListener("load", layout));
+      observer.disconnect();
+      window.removeEventListener("resize", layout);
+    };
+  }, [count]);
+
+  return (
+    <section class="section zoom pull" id="today">
+      <div class="zoom-track" ref={track}>
+        <div class="zoom-stage pull-stage">
+          <div class="zoom-right">
+            <div class="zoom-scene" ref={scene}>
+              <div class="phone-body">
+                <img
+                  src={`/media/art/screen_today${suffix}.webp`}
+                  width="1170"
+                  height="2532"
+                  alt="Tackry's Today screen: a stack of tilted plates holding the pinned tacks, with counts for what is due now, pinned and newly captured."
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="zoom-copy">
+            <p class="eyebrow">Today</p>
+            <h2>A stack that fans out</h2>
+            <p class="section-lede">
+              Everything you pinned collects into one stack on Today — the app's own mark, holding
+              your things. Tap it and the stack fans back out into a grid.
+            </p>
+            <div class="pull-field" ref={field} aria-hidden="true">
+              {Array.from({ length: count }, (_, index) => (
+                <img
+                  key={index}
+                  class="pull-card"
+                  src={`/media/art/today_card_${index + 1}${suffix}.webp`}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 /* --------------------------------------------------------------- meaning -- */
@@ -661,9 +761,9 @@ function App() {
       <main id="main">
         <Hero />
         <Loop />
-        <Today />
         <Screens />
         <BoardZoom />
+        <TodayPull />
         <Meaning />
         <Themes />
         <Privacy />

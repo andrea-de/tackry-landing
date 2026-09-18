@@ -851,3 +851,38 @@ summary:focus-visible {
   .zoom-phone { opacity: 1; }
   .zoom-cards { display: none; }
 }
+
+
+/* ------------------------------------------------------------- today pull */
+
+/* Today runs the Board's effect backwards, so it mirrors its layout: the phone on
+   the left, the copy and the cards that gather into it on the right. */
+.pull-stage { direction: ltr; }
+
+@media (min-width: 900px) {
+  .pull-stage .zoom-right { order: -1; }
+}
+
+.pull-field {
+  position: relative;
+  margin-top: 1.4rem;
+  min-height: clamp(220px, 34vh, 340px);
+}
+
+.pull-card {
+  position: absolute;
+  height: auto;
+  transform-origin: 0 0;
+  /* The travel finishes at --p 0.8 and the fade runs after it, so a card is on the
+     stack before it disappears into it rather than vanishing in mid-air. */
+  --q: clamp(0, calc(var(--p) * 1.25), 1);
+  transform:
+    translate(calc(var(--ex, 0px) * var(--q)), calc(var(--ey, 0px) * var(--q)))
+    scale(calc(1 + (var(--s, 1) - 1) * var(--q)));
+  opacity: clamp(0, calc(10 - var(--p) * 10), 1);
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pull-field { display: none; }
+}
