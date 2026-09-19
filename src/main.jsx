@@ -227,6 +227,13 @@ function headerHeight() {
   return node ? node.getBoundingClientRect().height : 0;
 }
 
+/**
+ * How much of a pinned section's scroll is spent holding still at each end. Without it the
+ * animation starts the instant the section pins and finishes as it unpins, so the state it
+ * opens on and the state it lands on are both glimpsed rather than seen.
+ */
+const HOLD = 0.18;
+
 /** Drives --p on `node` from 0 to 1 across the section's scroll, one rAF at a time. */
 function useScrollProgress(ref) {
   useEffect(() => {
@@ -245,7 +252,9 @@ function useScrollProgress(ref) {
       // measured from there — not from the top of the window, which is behind the bar.
       const header = headerHeight();
       const travel = box.height - (window.innerHeight - header);
-      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, (header - box.top) / travel));
+      const raw = travel <= 0 ? 0 : Math.min(1, Math.max(0, (header - box.top) / travel));
+      // Hold at both ends: the first and last slice of the scroll sit on 0 and 1.
+      const p = Math.min(1, Math.max(0, (raw - HOLD) / (1 - HOLD * 2)));
       node.style.setProperty("--p", p.toFixed(4));
     };
     const onScroll = () => {

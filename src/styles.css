@@ -968,10 +968,15 @@ summary:focus-visible {
   border-radius: 25px;
 }
 
-.fan-screen-fanned {
+/* Named through its parent on purpose: `.phone-body > img` is more specific than a
+   lone class, so a plain `.fan-screen-fanned` rule lost its width to it and the
+   screen came out a bezel wider and taller than the one underneath — a second
+   phone, offset down and right. */
+.phone-body > .fan-screen-fanned {
   position: absolute;
   inset: 10px;
   width: calc(100% - 20px);
+  height: auto;
   opacity: clamp(0, calc(var(--p) * 2.6 - 0.5), 1);
 }
 
@@ -1014,4 +1019,100 @@ summary:focus-visible {
   .fan-screen-fanned { opacity: 1; }
   .fan-deck { display: none; }
   .fan-card { transform: none; opacity: 1; }
+}
+
+/* ----------------------------------------------------------- bubble play */
+
+.bubble-play { margin: 0; }
+
+.bubble-phone {
+  width: min(280px, 82%);
+  margin-inline: auto;
+}
+
+/* A plain ground rather than a screenshot: the bubble floats over whatever you
+   were doing, and a busy screen behind it only competes with the thing moving. */
+.bubble-screen {
+  position: relative;
+  aspect-ratio: 1170 / 2532;
+  border-radius: 25px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 60% at 50% 0%, var(--surface) 0%, transparent 70%),
+    var(--bg);
+}
+
+/* A real bubble is about 52dp against a 390dp screen, so it is small — roughly a
+   seventh of the width, not a quarter. Without this the image falls back to its
+   own 384px and fills the phone. */
+.bubble-dot {
+  position: absolute;
+  width: 15%;
+  height: auto;
+  left: 50%;
+  top: 4.5%;
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  /* Above the sheet, as the platform draws it. */
+  z-index: 2;
+  /* Resting place is the top centre, where an open bubble sits; the keyframes
+     carry it out to the edge it arrives at. */
+  transform: translate(-50%, 0);
+}
+
+.bubble-sheet {
+  position: absolute;
+  left: 4%;
+  width: 92%;
+  top: 14%;
+  height: auto;
+  border-radius: 14px;
+  transform-origin: 50% 0;
+  opacity: 0;
+}
+
+.is-playing .bubble-dot { animation: bubble-dot 9s ease-in-out infinite; }
+.is-playing .bubble-sheet { animation: bubble-sheet 9s ease-in-out infinite; }
+
+/* In: pops against the right edge a third of the way down, overshooting slightly
+   the way the platform's spring does. Out: slides up to the top centre, and the
+   sheet opens under it. Each segment carries its own timing function — one ease
+   across nine seconds made the move to the top a one-second drift. */
+@keyframes bubble-dot {
+  0% { opacity: 0; transform: translate(calc(-50% + 300%), 430%) scale(0.5); }
+  6% { opacity: 1; transform: translate(calc(-50% + 240%), 430%) scale(1.12); }
+  10% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
+  24% {
+    opacity: 1;
+    transform: translate(calc(-50% + 250%), 430%) scale(1);
+    animation-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1);
+  }
+  26.5% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  86% { opacity: 1; transform: translate(-50%, 0) scale(1); animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+  88.5% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
+  100% { opacity: 1; transform: translate(calc(-50% + 250%), 430%) scale(1); }
+}
+
+@keyframes bubble-sheet {
+  0%, 26% { opacity: 0; transform: scale(0.35) translateY(-14%); animation-timing-function: cubic-bezier(0.2, 0.9, 0.2, 1); }
+  31% { opacity: 1; transform: scale(1) translateY(0); }
+  85% { opacity: 1; transform: scale(1) translateY(0); animation-timing-function: cubic-bezier(0.4, 0, 1, 1); }
+  88% { opacity: 0; transform: scale(0.35) translateY(-14%); }
+  100% { opacity: 0; transform: scale(0.35) translateY(-14%); }
+}
+
+.bubble-play figcaption {
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* No motion: the bubble open, which is the state the copy is about. */
+@media (prefers-reduced-motion: reduce) {
+  .is-playing .bubble-dot,
+  .is-playing .bubble-sheet { animation: none; }
+  .bubble-dot { opacity: 1; }
+  .bubble-sheet { opacity: 1; transform: none; }
 }
