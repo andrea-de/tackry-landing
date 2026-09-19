@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { Mark, Plate } from "./mark.jsx";
 import { Art, Phone, PhoneShell, ThemeToggle, useHeaderHeight, useTheme } from "./theme.jsx";
 import BOARD_CARDS from "../public/media/art/board_cards.json";
-import TODAY_TARGET from "../public/media/art/today_target.json";
+import FAN from "../public/media/art/fan.json";
 import "./styles.css";
 
 const MAILTO = "mailto:contact@tackry.com?subject=Tackry";
@@ -484,108 +484,89 @@ function rowHeight(cards, columns, row, sceneBox, scale) {
   return Math.max(...inRow.map((card) => card.height * sceneBox.height * scale));
 }
 
-/* ----------------------------------------------------------- today pull -- */
+/* ------------------------------------------------------------- today fan -- */
 
 /**
- * Today, the Board's effect run backwards. The Board lets four cards out of a phone; this one
- * puts one thing in.
+ * Today's stack, fanning out on the phone as you scroll.
  *
- * It opens on what Today holds — the stack, and the cards it fans out into, standing where the
- * phone will be. Scrolling drops the cards away, fades the phone in behind them, and carries the
- * stack down into its place on the screen. The screen it fades in has that place erased, so the
- * stack arriving is the only one: nothing duplicates and nothing has to be hidden.
+ * It is the two real screens — stacked and fanned — with their moving parts lifted off by the
+ * export: the deck out of one, the six cards out of the other, each with the rect it occupied.
+ * The page crossfades the two emptied screens underneath while the deck shrinks away and the
+ * cards fly from where the deck was to where they belong. Because every piece came out of the
+ * screen it belongs to, the end of the animation is pixel-for-pixel the fanned screen.
+ *
+ * The rest of the screen — the counts, the due rows — goes with the crossfade, which is the
+ * "zoom away" that leaves only the cards.
  */
-function TodayPull() {
+function TodayFan() {
   const track = useRef(null);
   const scene = useRef(null);
-  const deck = useRef(null);
-  const fan = useRef(null);
-  const [, effective] = useTheme();
-  const suffix = effective === "dark" ? "_midnight" : "";
-  const cards = Array.from({ length: Math.min(TODAY_TARGET.cards, 4) }, (_, i) => i);
-
   useScrollProgress(track);
 
-  useEffect(() => {
-    const sceneNode = scene.current;
-    const deckNode = deck.current;
-    const fanNode = fan.current;
-    if (!sceneNode || !deckNode || !fanNode) return undefined;
-
-    const layout = () => {
-      const sceneBox = sceneNode.getBoundingClientRect();
-      const deckBox = deckNode.getBoundingClientRect();
-      if (!sceneBox.width || !deckBox.width) return;
-
-      // The screen is the scene inset by the bezel, and the target is a fraction of it.
-      const screenLeft = sceneBox.left + 10;
-      const screenTop = sceneBox.top + 10;
-      const screenWidth = sceneBox.width - 20;
-      const screenHeight = sceneBox.height - 20;
-      const target = TODAY_TARGET.deck;
-
-      deckNode.style.setProperty("--s", ((target.width * screenWidth) / deckBox.width).toFixed(4));
-      deckNode.style.setProperty("--ex", `${(screenLeft + target.left * screenWidth - deckBox.left).toFixed(1)}px`);
-      deckNode.style.setProperty("--ey", `${(screenTop + target.top * screenHeight - deckBox.top).toFixed(1)}px`);
-
-      // The cards fall straight down and out, each a little after the one before it.
-      const nodes = [...fanNode.querySelectorAll(".fan-card")];
-      nodes.forEach((node, index) => {
-        node.style.setProperty("--fall", `${(sceneBox.height * 0.55).toFixed(0)}px`);
-        node.style.setProperty("--delay", (index * 0.05).toFixed(2));
-      });
-    };
-
-    layout();
-    deckNode.addEventListener("load", layout);
-    const observer = new ResizeObserver(layout);
-    observer.observe(sceneNode);
-    observer.observe(fanNode);
-    window.addEventListener("resize", layout);
-    return () => {
-      deckNode.removeEventListener("load", layout);
-      observer.disconnect();
-      window.removeEventListener("resize", layout);
-    };
-  }, []);
+  const deck = FAN.deck;
+  const cards = FAN.cards;
 
   return (
-    <section class="section zoom pull" id="today">
-      <div class="zoom-track" ref={track}>
+    <section class="section zoom fan" id="today">
+      <div class="zoom-track fan-track" ref={track}>
         <div class="zoom-stage pull-stage">
           <div class="zoom-right">
-            <div class="pull-open" aria-hidden="true">
-              <img
-                class="pull-deck"
-                ref={deck}
-                src={`/media/art/today_deck${suffix}.webp`}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-              <div class="pull-fan" ref={fan}>
-                {cards.map((index) => (
-                  <img
-                    key={index}
-                    class="fan-card"
-                    src={`/media/art/today_card_${index + 1}${suffix}.webp`}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ))}
-              </div>
-            </div>
-            <div class="zoom-scene pull-scene" ref={scene}>
+            <div class="zoom-scene" ref={scene}>
               <div class="phone-body">
                 <img
-                  src={`/media/art/screen_today_empty${suffix}.webp`}
+                  class="fan-screen fan-screen-stacked"
+                  src="/media/art/fan_stacked.webp"
                   width="1170"
                   height="2532"
-                  alt="Tackry's Today screen: the stack of pinned tacks, with counts for what is due now, pinned and newly captured, and the reminders due next."
+                  alt="Tackry's Today screen with the stack closed: counts for what is due now, pinned and newly captured, and the reminders due next."
                   loading="lazy"
                   decoding="async"
                 />
+                <img
+                  class="fan-screen fan-screen-fanned"
+                  src="/media/art/fan_fanned.webp"
+                  width="1170"
+                  height="2532"
+                  alt=""
+                  aria-hidden="true"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div class="fan-layer" aria-hidden="true">
+                  <img
+                    class="fan-deck"
+                    src="/media/art/fan_deck.webp"
+                    alt=""
+                    style={{
+                      left: `${deck.left * 100}%`,
+                      top: `${deck.top * 100}%`,
+                      width: `${deck.width * 100}%`,
+                    }}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {cards.map((card, index) => (
+                    <img
+                      key={index}
+                      class="fan-card"
+                      src={`/media/art/fan_card_${index + 1}.webp`}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      style={{
+                        // Each card rests where it belongs and is carried back to the deck by
+                        // its own delta, so at rest the grid is exactly the fanned screen.
+                        left: `${card.left * 100}%`,
+                        top: `${card.top * 100}%`,
+                        width: `${card.width * 100}%`,
+                        "--dx": `${((deck.left + deck.width / 2) - (card.left + card.width / 2)) * 100}%`,
+                        "--dy": `${((deck.top + deck.height / 2) - (card.top + card.height / 2)) * 100}%`,
+                        "--turn": `${(index % 2 === 0 ? -1 : 1) * (4 + index * 1.5)}deg`,
+                        "--wait": index * 0.045,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -593,9 +574,10 @@ function TodayPull() {
             <p class="eyebrow">Today</p>
             <h2>A stack that fans out</h2>
             <p class="section-lede">
-              Everything you pinned collects into one stack on Today — the app's own mark, holding
-              your things. Tap it and the stack fans back out into a grid.
+              Today opens on one stack — the app's own mark, holding what you pinned. Tap it and
+              the stack fans into a grid you can act on.
             </p>
+            <p class="zoom-payoff">Scroll to open it.</p>
           </div>
         </div>
       </div>
@@ -863,7 +845,7 @@ function App() {
       <main id="main">
         <Hero />
         <Meaning />
-        <TodayPull />
+        <TodayFan />
         <Loop />
         <Screens />
         <BoardZoom />
