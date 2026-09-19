@@ -54,6 +54,10 @@
   /* The sticky header's own height. Every pinned stage starts below it, or the
      stage's first row sits under the bar for the whole time it is pinned. */
   --header: 60px;
+  /* One phone size for the whole page: the carousel, the Board and Today all show
+     the same device, and three slightly different widths read as a mistake. The
+     viewport-height term keeps a phone inside a pinned stage on a short window. */
+  --phone-w: min(300px, 62vw, 31vh);
 
   --radius: 18px;
   --wrap: 1120px;
@@ -807,7 +811,7 @@ summary:focus-visible {
 
 .carousel-slot {
   position: absolute;
-  width: min(300px, 62vw, 31vh);
+  width: var(--phone-w);
   /* How far this phone is from the front, and the same without its sign. */
   --d: calc(var(--p) * var(--n) - var(--i));
   --ad: max(var(--d), calc(-1 * var(--d)));
@@ -908,7 +912,7 @@ summary:focus-visible {
    — positioned against the bezel — no longer sit over themselves. */
 .zoom-scene {
   position: relative;
-  width: min(280px, 60vw, 27vh);
+  width: var(--phone-w);
 }
 
 .zoom-phone {
