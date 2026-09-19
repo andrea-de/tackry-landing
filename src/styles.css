@@ -537,7 +537,9 @@ summary:focus-visible {
   .theme-grid { grid-template-columns: repeat(3, 1fr); align-items: start; }
 }
 
-.theme-grid .art img { max-width: 320px; }
+/* The panels carry their own name and line now, so they want the column, not a
+   tidy centred column of cards. */
+.theme-grid .art img { max-width: 100%; }
 
 .theme-grid figcaption {
   text-align: left;

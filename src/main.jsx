@@ -679,15 +679,7 @@ function Themes() {
         </p>
         <div class="theme-grid">
           {THEMES.map((t) => (
-            <Art
-              key={t.name}
-              name={t.art}
-              width={t.w}
-              height={t.h}
-              alt={t.alt}
-              fixed
-              caption={<><strong>{t.name}</strong> {t.body}</>}
-            />
+            <Art key={t.name} name={t.art} width="1098" height="1049" alt={t.alt} fixed />
           ))}
         </div>
       </div>
