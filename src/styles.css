@@ -51,6 +51,10 @@
   --phone-edge: rgba(0, 0, 0, 0.18);
   --phone-slot: rgba(0, 0, 0, 0.3);
 
+  /* The sticky header's own height. Every pinned stage starts below it, or the
+     stage's first row sits under the bar for the whole time it is pinned. */
+  --header: 60px;
+
   --radius: 18px;
   --wrap: 1120px;
 }
@@ -774,8 +778,8 @@ summary:focus-visible {
 
 .carousel-stage {
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: var(--header);
+  height: calc(100vh - var(--header));
   display: grid;
   grid-template-rows: auto 1fr auto;
   align-items: center;
@@ -855,8 +859,8 @@ summary:focus-visible {
 
 .zoom-stage {
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: var(--header);
+  height: calc(100vh - var(--header));
   display: grid;
   grid-template-rows: auto 1fr;
   align-items: center;

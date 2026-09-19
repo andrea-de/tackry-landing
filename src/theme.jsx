@@ -66,9 +66,11 @@ export function useTheme() {
  * light cards keyed onto a dark page glow, and the point of the picture is what the app looks
  * like, which is not the same picture in both.
  */
-export function Art({ name, width, height, alt, className = "shot art", caption, eager }) {
+export function Art({ name, width, height, alt, className = "shot art", caption, eager, fixed }) {
   const [, effective] = useTheme();
-  const file = effective === "dark" ? `${name}_midnight` : name;
+  // `fixed` art already names the theme it shows — the themes section shows all three at once,
+  // whichever one the page itself is in.
+  const file = !fixed && effective === "dark" ? `${name}_midnight` : name;
   return (
     <figure class={className}>
       <img
@@ -141,4 +143,25 @@ export function PhoneShell({ name, alt }) {
       />
     </div>
   );
+}
+
+/**
+ * Publishes the sticky header's real height as --header, so the pinned stages can start below
+ * it. It changes with the font size and when the menu wraps, so it is measured rather than
+ * assumed.
+ */
+export function useHeaderHeight() {
+  useEffect(() => {
+    const node = document.querySelector(".site-header");
+    if (!node) return undefined;
+    const apply = () => {
+      document.documentElement.style.setProperty(
+        "--header", `${Math.round(node.getBoundingClientRect().height)}px`,
+      );
+    };
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 }

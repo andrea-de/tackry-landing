@@ -1,7 +1,7 @@
 import { render } from "preact";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { Mark, Plate } from "./mark.jsx";
-import { Art, Phone, PhoneShell, ThemeToggle, useTheme } from "./theme.jsx";
+import { Art, Phone, PhoneShell, ThemeToggle, useHeaderHeight, useTheme } from "./theme.jsx";
 import BOARD_CARDS from "../public/media/art/board_cards.json";
 import TODAY_TARGET from "../public/media/art/today_target.json";
 import "./styles.css";
@@ -221,6 +221,12 @@ function BubblePlay({ alt }) {
 
 /* --------------------------------------------------------------- screens -- */
 
+/** The sticky header's height, as the page's own --header variable reports it. */
+function headerHeight() {
+  const node = document.querySelector(".site-header");
+  return node ? node.getBoundingClientRect().height : 0;
+}
+
 /** Drives --p on `node` from 0 to 1 across the section's scroll, one rAF at a time. */
 function useScrollProgress(ref) {
   useEffect(() => {
@@ -235,8 +241,11 @@ function useScrollProgress(ref) {
       frame = 0;
       const box = node.getBoundingClientRect();
       // 0 when the section's top reaches the viewport top, 1 when its bottom does.
-      const travel = box.height - window.innerHeight;
-      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, -box.top / travel));
+      // The stage is pinned under the header, so the travel and the start of it are both
+      // measured from there — not from the top of the window, which is behind the bar.
+      const header = headerHeight();
+      const travel = box.height - (window.innerHeight - header);
+      const p = travel <= 0 ? 0 : Math.min(1, Math.max(0, (header - box.top) / travel));
       node.style.setProperty("--p", p.toFixed(4));
     };
     const onScroll = () => {
@@ -637,23 +646,23 @@ const THEMES = [
   {
     name: "Light",
     body: "Warm paper. Green, rust and gold accents.",
-    img: "/media/art/tack_card.webp",
-    alt: "A tack card in the Light theme: cream card, green outline, dark ink on warm sand.",
-    w: 1008, h: 413,
+    art: "theme_cards_light",
+    alt: "Three cards in the Light theme, overlapping: a cream note, a pale blue saved notification, and a warm reminder.",
+    w: 938, h: 788,
   },
   {
     name: "Dark",
     body: "The same warmth turned down, not a grey inversion.",
-    img: "/media/art/tack_card_dark.webp",
-    alt: "The same card in the Dark theme: near-black green-tinted ground, cream text, muted green outline.",
-    w: 1008, h: 413,
+    art: "theme_cards_dark",
+    alt: "Three cards in the Dark theme, overlapping: a deep rust reminder, a near-black note, and a slate saved notification.",
+    w: 934, h: 695,
   },
   {
     name: "Midnight",
     body: "The mark's own colours — white, blue and yellow on navy — across the whole app.",
-    img: "/media/art/tack_card_midnight.webp",
-    alt: "The same card in the Midnight theme: deep navy ground, white card, off-white text.",
-    w: 1008, h: 413,
+    art: "theme_cards_midnight",
+    alt: "Three cards in the Midnight theme, overlapping: a bright blue saved notification, a white list, and a yellow reminder.",
+    w: 935, h: 789,
   },
 ];
 
@@ -670,10 +679,15 @@ function Themes() {
         </p>
         <div class="theme-grid">
           {THEMES.map((t) => (
-            <figure class="shot art" key={t.name}>
-              <img src={t.img} width={t.w} height={t.h} alt={t.alt} loading="lazy" decoding="async" />
-              <figcaption><strong>{t.name}</strong> {t.body}</figcaption>
-            </figure>
+            <Art
+              key={t.name}
+              name={t.art}
+              width={t.w}
+              height={t.h}
+              alt={t.alt}
+              fixed
+              caption={<><strong>{t.name}</strong> {t.body}</>}
+            />
           ))}
         </div>
       </div>
@@ -849,6 +863,7 @@ function Footer() {
 }
 
 function App() {
+  useHeaderHeight();
   return (
     <>
       <a class="skip" href="#main">Skip to content</a>
