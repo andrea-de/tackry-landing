@@ -510,6 +510,10 @@ function rowHeight(cards, columns, row, sceneBox, scale) {
 function TodayFan() {
   const track = useRef(null);
   const scene = useRef(null);
+  const [, effective] = useTheme();
+  // Every piece has a Midnight twin; the rects they sit in are the same, because the two themes
+  // are one layout in different colours.
+  const suffix = effective === "dark" ? "_midnight" : "";
   useScrollProgress(track);
 
   const deck = FAN.deck;
@@ -524,7 +528,7 @@ function TodayFan() {
               <div class="phone-body">
                 <img
                   class="fan-screen fan-screen-stacked"
-                  src="/media/art/fan_stacked.webp"
+                  src={`/media/art/fan_stacked${suffix}.webp`}
                   width="1170"
                   height="2532"
                   alt="Tackry's Today screen with the stack closed: counts for what is due now, pinned and newly captured, and the reminders due next."
@@ -533,7 +537,7 @@ function TodayFan() {
                 />
                 <img
                   class="fan-screen fan-screen-fanned"
-                  src="/media/art/fan_fanned.webp"
+                  src={`/media/art/fan_fanned${suffix}.webp`}
                   width="1170"
                   height="2532"
                   alt=""
@@ -544,7 +548,7 @@ function TodayFan() {
                 <div class="fan-layer" aria-hidden="true">
                   <img
                     class="fan-deck"
-                    src="/media/art/fan_deck.webp"
+                    src={`/media/art/fan_deck${suffix}.webp`}
                     alt=""
                     style={{
                       left: `${deck.left * 100}%`,
@@ -558,7 +562,7 @@ function TodayFan() {
                     <img
                       key={index}
                       class="fan-card"
-                      src={`/media/art/fan_card_${index + 1}.webp`}
+                      src={`/media/art/fan_card_${index + 1}${suffix}.webp`}
                       alt=""
                       loading="lazy"
                       decoding="async"
