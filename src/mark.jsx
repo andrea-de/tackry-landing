@@ -37,13 +37,102 @@ const poly = (points) =>
 
 const shift = (p, dy) => [p[0], p[1] + dy];
 
-const face = (dy) => poly([T, R, B, L].map((p) => shift(p, dy)));
+/**
+ * A plate is a rounded square seen in isometric: the corners are rounded in the
+ * plate's own plane, and the projection turns them into elliptical arcs — the
+ * same rounding the app's tacks carry. A linear map carries Bezier control
+ * points, so the arcs come out exact rather than approximated twice.
+ */
+const CORNER_FRACTION = 0.147;
+const KAPPA = 0.5523;
 
-const side = (dy) =>
-  poly([
-    shift(L, dy), shift(B, dy), shift(R, dy),
-    shift(R, dy + PLATE_DEPTH), shift(B, dy + PLATE_DEPTH), shift(L, dy + PLATE_DEPTH),
-  ]);
+const ACROSS_S = [R[0] - T[0], R[1] - T[1]];
+const ACROSS_T = [L[0] - T[0], L[1] - T[1]];
+
+const plate = (s, t) => [
+  T[0] + ACROSS_S[0] * s + ACROSS_T[0] * t,
+  T[1] + ACROSS_S[1] * s + ACROSS_T[1] * t,
+];
+
+const FACE_START = plate(CORNER_FRACTION, 0);
+
+const FACE_STEPS = (() => {
+  const k = CORNER_FRACTION;
+  const c = k * KAPPA;
+  return [
+    ["L", plate(1 - k, 0)],
+    ["C", plate(1 - k + c, 0), plate(1, k - c), plate(1, k)],
+    ["L", plate(1, 1 - k)],
+    ["C", plate(1, 1 - k + c), plate(1 - k + c, 1), plate(1 - k, 1)],
+    ["L", plate(k, 1)],
+    ["C", plate(k - c, 1), plate(0, 1 - k + c), plate(0, 1 - k)],
+    ["L", plate(0, k)],
+    ["C", plate(0, k - c), plate(k - c, 0), plate(k, 0)],
+  ];
+})();
+
+const face = (dy) => {
+  const at = (p) => `${p[0].toFixed(2)},${(p[1] + dy).toFixed(2)}`;
+  const parts = [`M${at(FACE_START)}`];
+  for (const step of FACE_STEPS) {
+    if (step[0] === "L") parts.push(`L${at(step[1])}`);
+    else parts.push(`C${at(step[1])} ${at(step[2])} ${at(step[3])}`);
+  }
+  return parts.join(" ") + " Z";
+};
+
+/** The face as points, which is all the silhouette needs. */
+const facePoints = () => {
+  const points = [FACE_START];
+  let at = FACE_START;
+  for (const step of FACE_STEPS) {
+    if (step[0] === "L") {
+      points.push(step[1]);
+      at = step[1];
+    } else {
+      const [, c1, c2, to] = step;
+      for (let i = 1; i <= 12; i += 1) {
+        const u = i / 12;
+        const v = 1 - u;
+        points.push([
+          v ** 3 * at[0] + 3 * v * v * u * c1[0] + 3 * v * u * u * c2[0] + u ** 3 * to[0],
+          v ** 3 * at[1] + 3 * v * v * u * c1[1] + 3 * v * u * u * c2[1] + u ** 3 * to[1],
+        ]);
+      }
+      at = to;
+    }
+  }
+  return points;
+};
+
+const hull = (points) => {
+  const sorted = [...points].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const half = (source) => {
+    const chain = [];
+    for (const p of source) {
+      while (chain.length >= 2 && cross(chain[chain.length - 2], chain[chain.length - 1], p) <= 0) {
+        chain.pop();
+      }
+      chain.push(p);
+    }
+    chain.pop();
+    return chain;
+  };
+  return half(sorted).concat(half([...sorted].reverse()));
+};
+
+/**
+ * The block: what the plate covers on its way down, which for a convex shape is
+ * the hull of the two ends. Not the union of them — that is pinched where the
+ * outlines cross, out at the far left and right, and the pinch reads as a seam
+ * between two sheets rather than the side of one block.
+ */
+const SOLID_OUTLINE = hull(
+  facePoints().concat(facePoints().map((p) => shift(p, PLATE_DEPTH))),
+);
+
+const solid = (dy) => poly(SOLID_OUTLINE.map((p) => shift(p, dy)));
 
 const PIN_PATH = poly(PIN_POINTS);
 
@@ -73,8 +162,8 @@ export function Mark({ size = 40, plates = "var", title, className }) {
       <g stroke={outline} stroke-width={PLATE_STROKE} stroke-linejoin="round">
         {[2, 1, 0].map((i) => (
           <g key={i}>
+            <path d={solid(PLATE_OFFSETS[i])} fill={colour(i, "edge")} />
             <path d={face(PLATE_OFFSETS[i])} fill={colour(i, "face")} />
-            <path d={side(PLATE_OFFSETS[i])} fill={colour(i, "edge")} />
           </g>
         ))}
       </g>
@@ -94,8 +183,8 @@ export function Plate({ index, size = 64 }) {
       focusable="false"
     >
       <g stroke="var(--plate-outline)" stroke-width={PLATE_STROKE} stroke-linejoin="round">
+        <path d={solid(0)} fill={`var(--plate-${index}-edge)`} />
         <path d={face(0)} fill={`var(--plate-${index}-face)`} />
-        <path d={side(0)} fill={`var(--plate-${index}-edge)`} />
       </g>
     </svg>
   );
