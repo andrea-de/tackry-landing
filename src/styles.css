@@ -1116,3 +1116,39 @@ summary:focus-visible {
   .bubble-dot { opacity: 1; }
   .bubble-sheet { opacity: 1; transform: none; }
 }
+
+/* ---------------------------------------------------------- floating notes */
+
+.float-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: center;
+}
+
+.float-copy .section-lede { margin-bottom: 1rem; }
+
+.float-payoff {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--muted);
+}
+
+.float-phone {
+  width: var(--phone-w);
+  margin: 0;
+}
+
+/* The loop sits in the phone the way the screenshots do: the screen's own corners. */
+.phone-body > video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 25px;
+  background: var(--surface-2);
+}
+
+@media (max-width: 760px) {
+  .float-grid { grid-template-columns: 1fr; }
+  .float-phone { justify-self: center; }
+}

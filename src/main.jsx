@@ -729,7 +729,7 @@ const REACH = [
   ["Quick Settings tiles", "Three tiles in the pull-down shade: new tack, save the clipboard as a tack, and open the reminder bubble now."],
   ["The share sheet", "Send text, links, images, files or several at once to Tackry from any app. Shared links get a title, summary and preview fetched in the background so the save itself stays instant."],
   ["Select text anywhere", "Highlight text in any app and Save to Tackry appears in the selection menu. It saves silently, without opening anything."],
-  ["The bubble", "Due reminders share one floating bubble you can drag around, act on and dismiss. Quiet updates stay quiet; only your own actions expand it."],
+  ["Bubbles", "Due reminders share one floating bubble you can drag around, act on and dismiss, and any pinned note can float in a bubble of its own, to edit over whatever app you are in."],
   ["Tablets and folds", "Wide screens get a floating navigation rail and a centred column rather than a stretched phone layout."],
 ];
 
@@ -747,6 +747,71 @@ function Reach() {
             </div>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------- floating notes -- */
+
+/**
+ * A pinned note floated over another app, edited there and put away — recorded from the real
+ * app (the Tackry repo's PromoVideoTest), not drawn for the page. It loops from the bubble at
+ * rest back to the bubble at rest, so there is no seam. It only plays while it is on screen, and
+ * for a reader who has asked for less motion it is a still with its own play control instead.
+ */
+function FloatingNotes() {
+  const [, effective] = useTheme();
+  const suffix = effective === "dark" ? "_midnight" : "";
+  const video = useRef(null);
+  const [reduced] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  useEffect(() => {
+    const node = video.current;
+    if (!node || reduced) return undefined;
+    const watch = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) node.play().catch(() => {});
+      else node.pause();
+    }, { threshold: 0.35 });
+    watch.observe(node);
+    return () => watch.disconnect();
+  }, [suffix, reduced]);
+
+  return (
+    <section class="section" id="float">
+      <div class="wrap float-grid">
+        <div class="float-copy">
+          <p class="eyebrow">Floating notes</p>
+          <h2>A note that stays on top of everything else</h2>
+          <p class="section-lede">
+            Pin a note and float it as a bubble. Open it over whatever you are doing — the recipe,
+            the booking form, the chat — add a line, and tuck it away again.
+          </p>
+          <p class="float-payoff">
+            It saves as you type, and it is the same note on your board. Only pinned notes float,
+            so a bubble is always something you chose to keep in front of you.
+          </p>
+        </div>
+        <figure class="phone float-phone">
+          <div class="phone-body">
+            <video
+              key={suffix}
+              ref={video}
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              controls={reduced}
+              poster={`/media/art/float_loop${suffix}.webp`}
+              width="720"
+              height="1560"
+              aria-label="A Groceries list floating as a bubble over a recipe: it opens, Parmesan is added to it, and it goes back to being a bubble."
+            >
+              <source src={`/media/art/float_loop${suffix}.webm`} type="video/webm" />
+              <source src={`/media/art/float_loop${suffix}.mp4`} type="video/mp4" />
+            </video>
+          </div>
+        </figure>
       </div>
     </section>
   );
@@ -862,6 +927,7 @@ function App() {
         <Loop />
         <Screens />
         <BoardZoom />
+        <FloatingNotes />
         <Themes />
         <Privacy />
         <Reach />
