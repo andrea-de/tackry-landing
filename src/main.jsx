@@ -686,10 +686,10 @@ function Themes() {
 
 const PRIVACY = [
   ["No account", "There is no sign-in, no profile, no email address to hand over. You install it and it works."],
-  ["No server", "Tackry has no backend. Your tacks live in a database on your phone and stay there."],
-  ["No analytics", "No analytics, crash-reporting or advertising SDKs are built into the app."],
+  ["No cloud", "Nothing you keep is stored anywhere else. Your tacks live in a database on your phone and stay there."],
+  ["No analytics", "No analytics, crash-reporting or third-party advertising SDKs are built into the app, and it never reads your advertising ID."],
   ["Sensitive apps skipped", "Notification capture ignores apps that look like banks, authenticators, password managers and wallets, by default, before anything is stored. You can allow one deliberately, or block any other app by hand."],
-  ["Network only for links", "The only thing Tackry fetches is a page you shared with it, to read its title, summary and preview image — from your device, straight to that site."],
+  ["Two small requests", "Tackry fetches a page you shared with it, straight from that site, to read its title and preview image. And one card in Settings, for our other apps, comes from our server with no identifier. Neither ever carries anything you keep."],
   ["Backups are yours", "Export the whole local state to a file whenever you want. You choose where it goes; nothing is uploaded."],
 ];
 
@@ -698,7 +698,7 @@ function Privacy() {
     <section class="section" id="privacy">
       <div class="wrap">
         <p class="eyebrow">Privacy</p>
-        <h2>Nothing leaves the device</h2>
+        <h2>What you keep stays on the device</h2>
         <p class="section-lede">
           Notification access is a serious permission and it deserves a plain explanation. If you
           grant it, Tackry's listener reads the notifications your phone shows and keeps the ones
