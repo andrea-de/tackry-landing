@@ -1,0 +1,195 @@
+{
+  "youtube": {
+    "clips": [
+      "rescue",
+      "remind",
+      "board",
+      "float",
+      "end"
+    ],
+    "script": [
+      {
+        "key": "hook",
+        "text": "Swiped away something you needed?",
+        "start": 1.67,
+        "end": 3.54
+      },
+      {
+        "key": "kept",
+        "text": "Tackry kept it.",
+        "start": 4.83,
+        "end": 5.99
+      },
+      {
+        "key": "remind",
+        "text": "Swipe it into a reminder, and it comes back when it matters.",
+        "start": 7.08,
+        "end": 10.41
+      },
+      {
+        "key": "today",
+        "text": "Today shows what's pinned and what's due.",
+        "start": 11.48,
+        "end": 14.17
+      },
+      {
+        "key": "board",
+        "text": "And notifications are only one thing you can tack. Notes, lists and links live here too.",
+        "start": 14.73,
+        "end": 21.35
+      },
+      {
+        "key": "float",
+        "text": "Pin a note, float it over any app, and edit it right there.",
+        "start": 23.05,
+        "end": 27.4
+      },
+      {
+        "key": "end",
+        "text": "Tackry. Everything worth keeping, and none of it leaves your phone.",
+        "start": 28.47,
+        "end": 32.86
+      }
+    ],
+    "tail": 1.64,
+    "files": [
+      {
+        "file": "youtube/promo-youtube-1920x1080.mp4",
+        "poster": "youtube/promo-youtube-1920x1080-poster.jpg",
+        "contact": "youtube/promo-youtube-1920x1080-contact.jpg",
+        "width": 1920,
+        "height": 1080,
+        "vcodec": "h264",
+        "fps": 30.0,
+        "acodec": "aac",
+        "channels": 2,
+        "duration": 34.52,
+        "bytes": 1957581,
+        "checks": [
+          {
+            "rule": "ends on a pause (≥ 1.5 s after the last line)",
+            "ok": true
+          },
+          {
+            "rule": "16:9",
+            "ok": true
+          },
+          {
+            "rule": "H.264 + AAC stereo",
+            "ok": true
+          },
+          {
+            "rule": "≤ 45 s",
+            "ok": true
+          }
+        ]
+      }
+    ]
+  },
+  "house-ad": {
+    "clips": [
+      "rescue",
+      "board",
+      "end"
+    ],
+    "script": [
+      {
+        "key": "hook",
+        "text": "Swiped away something you needed?",
+        "start": 1.67,
+        "end": 3.54
+      },
+      {
+        "key": "kept",
+        "text": "Tackry kept it.",
+        "start": 4.83,
+        "end": 5.99
+      },
+      {
+        "key": "board",
+        "text": "And notifications are only one thing you can tack. Notes, lists and links live here too.",
+        "start": 6.82,
+        "end": 13.43
+      },
+      {
+        "key": "end",
+        "text": "Tackry. Everything worth keeping, and none of it leaves your phone.",
+        "start": 13.9,
+        "end": 18.29
+      }
+    ],
+    "tail": 1.64,
+    "files": [
+      {
+        "file": "house-ad/interstitial-1080x2160.mp4",
+        "poster": "house-ad/interstitial-1080x2160-poster.jpg",
+        "contact": "house-ad/interstitial-1080x2160-contact.jpg",
+        "width": 1080,
+        "height": 2160,
+        "vcodec": "h264",
+        "fps": 30.0,
+        "acodec": "aac",
+        "channels": 2,
+        "duration": 19.95,
+        "bytes": 1429042,
+        "checks": [
+          {
+            "rule": "ends on a pause (≥ 1.5 s after the last line)",
+            "ok": true
+          },
+          {
+            "rule": "1:2 interstitial",
+            "ok": true
+          },
+          {
+            "rule": "6–25 s",
+            "ok": true
+          },
+          {
+            "rule": "H.264 + AAC",
+            "ok": true
+          },
+          {
+            "rule": "≤ 8 MB",
+            "ok": true
+          }
+        ]
+      },
+      {
+        "file": "house-ad/interstitial-720x1440.ogv",
+        "poster": "house-ad/interstitial-720x1440-poster.jpg",
+        "contact": "house-ad/interstitial-720x1440-contact.jpg",
+        "width": 720,
+        "height": 1440,
+        "vcodec": "theora",
+        "fps": 24.0,
+        "acodec": "vorbis",
+        "channels": 2,
+        "duration": 19.95,
+        "bytes": 2068232,
+        "checks": [
+          {
+            "rule": "ends on a pause (≥ 1.5 s after the last line)",
+            "ok": true
+          },
+          {
+            "rule": "1:2 interstitial",
+            "ok": true
+          },
+          {
+            "rule": "6–25 s",
+            "ok": true
+          },
+          {
+            "rule": "Theora + Vorbis",
+            "ok": true
+          },
+          {
+            "rule": "≤ 8 MB",
+            "ok": true
+          }
+        ]
+      }
+    ]
+  }
+}
