@@ -52,6 +52,7 @@
       }
     ],
     "tail": 1.64,
+    "music": "bright",
     "files": [
       {
         "file": "youtube/promo-youtube-1920x1080.mp4",
@@ -64,7 +65,7 @@
         "acodec": "aac",
         "channels": 2,
         "duration": 34.52,
-        "bytes": 1957581,
+        "bytes": 2233398,
         "checks": [
           {
             "rule": "ends on a pause (≥ 1.5 s after the last line)",
@@ -119,6 +120,7 @@
       }
     ],
     "tail": 1.64,
+    "music": "bright",
     "files": [
       {
         "file": "house-ad/interstitial-1080x2160.mp4",
@@ -131,7 +133,7 @@
         "acodec": "aac",
         "channels": 2,
         "duration": 19.95,
-        "bytes": 1429042,
+        "bytes": 1583975,
         "checks": [
           {
             "rule": "ends on a pause (≥ 1.5 s after the last line)",
@@ -166,7 +168,7 @@
         "acodec": "vorbis",
         "channels": 2,
         "duration": 19.95,
-        "bytes": 2068232,
+        "bytes": 2155739,
         "checks": [
           {
             "rule": "ends on a pause (≥ 1.5 s after the last line)",
