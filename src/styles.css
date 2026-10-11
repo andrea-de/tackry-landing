@@ -350,11 +350,6 @@ summary:focus-visible {
   font-weight: 500;
 }
 
-.is-placeholder {
-  cursor: default;
-  border-style: dashed;
-}
-
 .cta-row {
   display: flex;
   flex-wrap: wrap;

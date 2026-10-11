@@ -7,6 +7,7 @@ import FAN from "../public/media/art/fan.json";
 import "./styles.css";
 
 const MAILTO = "mailto:contact@tackry.com?subject=Tackry";
+const PLAY_URL = "https://play.google.com/store/apps/details?id=com.tackry.app";
 
 /* ---------------------------------------------------------------- header -- */
 
@@ -51,7 +52,7 @@ function Header() {
             ))}
           </ul>
           <ThemeToggle />
-          <a class="btn btn-small" href={MAILTO}>Get in touch</a>
+          <a class="btn btn-small" href={PLAY_URL}>Get Tackry</a>
         </nav>
       </div>
     </header>
@@ -74,15 +75,10 @@ function Hero() {
           </p>
           <p class="lede">Everything is stored on your phone. There is no account to make and no server to sync to.</p>
           <div class="cta-row">
-            <a class="btn btn-primary" href={MAILTO}>Email contact@tackry.com</a>
-            <span class="btn btn-ghost is-placeholder" aria-disabled="true">
-              Google Play — link at launch
-            </span>
+            <a class="btn btn-primary" href={PLAY_URL}>Get it on Google Play</a>
+            <a class="btn btn-ghost" href={MAILTO}>Email contact@tackry.com</a>
           </div>
-          <p class="fine">
-            Tackry is not on Google Play yet. Mail me if you want a note when it is, or if you
-            want to try a build early.
-          </p>
+          <p class="fine">Free on Google Play, for Android 11 and newer.</p>
         </div>
         <Art
           className="hero-shot"
@@ -821,8 +817,8 @@ function FloatingNotes() {
 
 const FAQ = [
   [
-    "Can I get it yet?",
-    "Not from Google Play — the listing is not live. Mail contact@tackry.com and I will tell you when it is, or sort you out with a build before then.",
+    "Where do I get it?",
+    "On Google Play. It is free, and it runs on Android 11 and newer.",
   ],
   [
     "What does notification access actually let it do?",
@@ -877,14 +873,12 @@ function Closing() {
       <div class="wrap wrap-narrow">
         <h2>Want a look?</h2>
         <p class="section-lede">
-          Tackry is built and in testing. If you want to try it, or you have an opinion about
-          what it should do next, the address below is a real inbox.
+          Tackry is free on Google Play. If you have an opinion about what it should do next,
+          the address below is a real inbox.
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href={MAILTO}>Email contact@tackry.com</a>
-          <span class="btn btn-ghost is-placeholder" aria-disabled="true">
-            Google Play — link at launch
-          </span>
+          <a class="btn btn-primary" href={PLAY_URL}>Get it on Google Play</a>
+          <a class="btn btn-ghost" href={MAILTO}>Email contact@tackry.com</a>
         </div>
       </div>
     </section>
