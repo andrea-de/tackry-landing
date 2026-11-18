@@ -1,7 +1,11 @@
 {
+  "redirects": [
+    { "source": "/press-new", "destination": "/press", "statusCode": 301 },
+    { "source": "/drafts-new", "destination": "/drafts", "statusCode": 301 }
+  ],
   "headers": [
     {
-      "source": "/(press-new|drafts-new)(/.*)?",
+      "source": "/(press|drafts)(/.*)?",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
   ]

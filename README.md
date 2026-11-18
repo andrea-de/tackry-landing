@@ -20,6 +20,15 @@ Vercel on push.
   `com.tackry.ui.theme.TackryPalette`
 - `public/media/` — screenshots, exported from the app's Roborazzi output
   (`app/build/outputs/roborazzi/`) and resized to webp
+- `public/press/`, `public/drafts/` — tackry.com/press and /drafts: each is the ten-line loader of
+  the shared Advection press app, which lists Tackry's approved media (`gs://advection-media/tackry/assets`)
+  and its drafts (`…/review`) live, so they need no deploy when media changes (brain:
+  `media-platform.md`; the media itself moves with the app repo's `tools/media.py`, through the
+  `media` command). Both are noindex, by meta tag and by the `X-Robots-Tag` header in `vercel.json`,
+  which also redirects the earlier `/press-new` and `/drafts-new` (301) to them.
+- `retired/press/` — the old generated press page's copies (stills and video), kept in the repo
+  until the old storage retires and no longer deployed: nothing outside `public/` is served. Don't
+  add to it; new media goes to the buckets.
 - `public/privacy/` — the privacy policy. **This URL is referenced from the Play
   listing and from inside the app; it must keep working.**
 
