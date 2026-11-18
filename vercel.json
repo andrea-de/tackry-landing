@@ -1,5 +1,7 @@
 {
   "redirects": [
+    { "source": "/press-new/", "destination": "/press", "statusCode": 301 },
+    { "source": "/drafts-new/", "destination": "/drafts", "statusCode": 301 },
     { "source": "/press-new/:rest*", "destination": "/press", "statusCode": 301 },
     { "source": "/drafts-new/:rest*", "destination": "/drafts", "statusCode": 301 }
   ],
